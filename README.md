@@ -2,7 +2,7 @@
 
 Milky Way galactic intelligence platform. Part of the [Resource Systems](https://terraresource.net) suite by Corgan Studio.
 
-- **Domain:** galacticresource.net
+- **Domain:** galacticresource.com
 - **Engine:** Three.js (procedural spiral galaxy, Sol marker at 26,000 ly)
 - **Shared library:** `public/resource-systems-core.js`
 
