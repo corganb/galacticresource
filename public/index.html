@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GalacticResource | Milky Way Galactic Intelligence | Corgan Studio</title>
+<meta name="description" content="GalacticResource is the Corgan Studio galactic-scale intelligence platform. Procedural Milky Way spiral, Gaia star catalog subset, stellar populations, and the path to Sgr A*.">
+<meta name="keywords" content="Milky Way, galaxy, galactic, Gaia, Sagittarius A*, stellar populations, spiral galaxy, Corgan Studio, Resource Systems">
+<link rel="canonical" href="https://galacticresource.net">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:title" content="GalacticResource | Milky Way Intelligence">
+<meta property="og:description" content="Procedural Milky Way spiral with Gaia stars, spiral-arm structure, and Sol position at 26,000 light-years from galactic center.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://galacticresource.net">
+<meta property="og:site_name" content="GalacticResource">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@resource_sys">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #020308;
+    --panel-bg: rgba(10,12,20,0.94);
+    --b1: rgba(255,255,255,0.06);
+    --b2: rgba(255,255,255,0.12);
+    --t1: #e8eaf0;
+    --t2: #a0a8b8;
+    --t3: #6a7488;
+    --t4: #4a5060;
+    --accent: #a0b8ff;
+  }
+  html, body { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--t1); font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+  body { display: flex; flex-direction: column; }
+  .topbar { height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 14px; background: var(--panel-bg); backdrop-filter: blur(14px); border-bottom: 1px solid var(--b1); flex-shrink: 0; z-index: 100; }
+  .tb-center { flex: 1; justify-content: center; display: flex; }
+  .tb-right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+  .tb-brand { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .tb-brand-mark { width: 26px; height: 26px; }
+  .tb-brand-mark svg { width: 26px; height: 26px; }
+  .tb-brand > div:last-child { display: flex; flex-direction: column; line-height: 1.15; font-size: 13px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+  .tb-subtitle { font-size: 8.5px; color: var(--t3); font-weight: 400; letter-spacing: 0.08em; text-transform: none; }
+  .tb-btn { padding: 5px 10px; background: transparent; border: 1px solid var(--b2); border-radius: 6px; color: var(--t3); font-size: 11.5px; cursor: pointer; }
+  .content { flex: 1; position: relative; }
+  #scene { width: 100%; height: 100%; display: block; }
+  .statusbar { height: 22px; background: var(--panel-bg); border-top: 1px solid var(--b1); display: flex; align-items: center; padding: 0 12px; font-size: 9.5px; color: var(--t4); letter-spacing: 0.03em; gap: 20px; }
+  .statusbar .label { text-transform: uppercase; letter-spacing: 0.08em; color: var(--t4); }
+  .statusbar .value { color: var(--t2); margin-left: 4px; }
+  .sb-right { margin-left: auto; display: flex; gap: 20px; }
+  #loader { position: fixed; inset: 0; z-index: 500; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; transition: opacity 0.6s; }
+  #loader .pulse { width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(circle at 38% 38%, #fff8 0%, #a0b8ff 60%, transparent 100%); animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.15); opacity: 1; } }
+  #loader .label { font-size: 10px; color: var(--t3); letter-spacing: 0.12em; text-transform: uppercase; }
+  .tb-footlinks a { color: var(--t2); text-decoration: none; font-size: 9px; opacity: 0.5; }
+  .tb-footlinks a:hover { color: var(--accent); }
+  #sol-marker { position: absolute; pointer-events: none; color: var(--accent); font-size: 10px; letter-spacing: 0.05em; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 3px; display: none; }
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="pulse"></div>
+  <div class="label">Loading GalacticResource</div>
+</div>
+
+<div class="topbar">
+  <div class="tb-brand" onclick="window.location.reload()">
+    <div class="tb-brand-mark"></div>
+    <div>
+      GALACTIC RESOURCE<br>
+      <span class="tb-subtitle">a Corgan Studio intelligence platform</span>
+    </div>
+  </div>
+  <div class="tb-center"><div id="planet-nav"></div></div>
+  <div class="tb-right">
+    <div id="auth-btn-container"></div>
+    <span class="tb-footlinks" style="display:flex;gap:8px;margin-left:8px"><a href="https://instagram.com/resourcesystems" target="_blank">IG</a><a href="https://x.com/resource_sys" target="_blank">X</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  </div>
+</div>
+
+<div class="content">
+  <canvas id="scene"></canvas>
+  <div id="sol-marker">SOL &middot; 26 kly from center</div>
+</div>
+
+<div class="statusbar">
+  <div><span class="label">FRAME</span><span class="value">Galactic ICRS</span></div>
+  <div><span class="label">BODY</span><span class="value">Milky Way</span></div>
+  <div><span class="label">STARS</span><span class="value" id="star-count">-</span></div>
+  <div class="sb-right">
+    <div><span class="label">VERSION</span><span class="value">v0.1</span></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+<script src="resource-systems-core.js?v=8"></script>
+
+<script>
+(function init() {
+  var canvas = document.getElementById('scene');
+  var scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x020308);
+  scene.fog = new THREE.FogExp2(0x020308, 0.0005);
+
+  var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 20000);
+  camera.position.set(0, 800, 1500);
+
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  // ═══ PROCEDURAL MILKY WAY SPIRAL ═══
+  // Four spiral arms with two branches each, logarithmic spiral a=100, b=0.28.
+  // Central bulge = dense core cluster. Outer halo = sparse field.
+  var STAR_COUNT = 50000;
+  var positions = new Float32Array(STAR_COUNT * 3);
+  var colors = new Float32Array(STAR_COUNT * 3);
+  var sizes = new Float32Array(STAR_COUNT);
+
+  var ARM_COUNT = 4;
+  var ARM_OFFSET = (Math.PI * 2) / ARM_COUNT;
+
+  function logSpiralR(theta, a, b) { return a * Math.exp(b * theta); }
+
+  for (var i = 0; i < STAR_COUNT; i++) {
+    var roll = Math.random();
+    var x, y, z;
+    var r, g, bl;
+
+    if (roll < 0.30) {
+      // Central bulge (30%): gaussian-ish distribution near origin
+      var rr = Math.abs(gaussian()) * 120;
+      var th = Math.random() * Math.PI * 2;
+      var ph = (Math.random() - 0.5) * 0.4;
+      x = rr * Math.cos(th);
+      y = rr * Math.sin(ph) * 80;
+      z = rr * Math.sin(th);
+      r = 1.0; g = 0.88; bl = 0.65;  // yellow-white
+    } else if (roll < 0.85) {
+      // Spiral arms (55%): logarithmic spiral with scatter
+      var arm = Math.floor(Math.random() * ARM_COUNT);
+      var theta = Math.random() * 6;  // 0 to ~2 full turns
+      var rBase = logSpiralR(theta, 60, 0.28);
+      var jitter = (Math.random() - 0.5) * Math.max(30, rBase * 0.25);
+      var armAngle = theta + arm * ARM_OFFSET + (Math.random() - 0.5) * 0.35;
+      x = (rBase + jitter) * Math.cos(armAngle);
+      z = (rBase + jitter) * Math.sin(armAngle);
+      y = (Math.random() - 0.5) * Math.max(10, rBase * 0.04);
+      // Color by radial distance: inner = yellow, outer = blue-white
+      var t = Math.min(1, rBase / 1200);
+      r = 1.0 - t * 0.4;
+      g = 0.9 - t * 0.1;
+      bl = 0.7 + t * 0.3;
+    } else {
+      // Halo / field stars (15%): sparse scatter in large volume
+      var rh = 300 + Math.random() * 1400;
+      var thh = Math.random() * Math.PI * 2;
+      var phh = Math.acos(2 * Math.random() - 1);
+      x = rh * Math.sin(phh) * Math.cos(thh);
+      y = rh * Math.cos(phh) * 0.3;
+      z = rh * Math.sin(phh) * Math.sin(thh);
+      r = 0.8; g = 0.85; bl = 1.0;  // blue-white
+    }
+
+    positions[i*3]   = x;
+    positions[i*3+1] = y;
+    positions[i*3+2] = z;
+    colors[i*3]   = r;
+    colors[i*3+1] = g;
+    colors[i*3+2] = bl;
+    sizes[i] = 1.0 + Math.random() * 2.5;
+  }
+
+  function gaussian() {
+    var u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+  }
+
+  var galaxyGeo = new THREE.BufferGeometry();
+  galaxyGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+  var galaxyMat = new THREE.PointsMaterial({
+    size: 2.0,
+    sizeAttenuation: true,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.85,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+  });
+  var galaxy = new THREE.Points(galaxyGeo, galaxyMat);
+  scene.add(galaxy);
+
+  // Central black hole (Sgr A*) - small hot spot
+  (function sgrA() {
+    var geo = new THREE.SphereGeometry(4, 32, 16);
+    var mat = new THREE.MeshBasicMaterial({ color: 0xffddaa });
+    var mesh = new THREE.Mesh(geo, mat);
+    scene.add(mesh);
+    // Glow ring
+    var ringGeo = new THREE.RingGeometry(6, 18, 64);
+    var ringMat = new THREE.MeshBasicMaterial({ color: 0xffaa55, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+    var ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 2;
+    scene.add(ring);
+  })();
+
+  // Sol marker at ~26,000 ly from center = ~260 scene units (1 unit = 100 ly)
+  var SOL_DISTANCE = 260;
+  var solMarkerGeo = new THREE.SphereGeometry(2, 12, 8);
+  var solMarkerMat = new THREE.MeshBasicMaterial({ color: 0xFFD54F });
+  var solMarker = new THREE.Mesh(solMarkerGeo, solMarkerMat);
+  solMarker.position.set(SOL_DISTANCE, 0, 0);
+  scene.add(solMarker);
+  // Small glow
+  var solGlowGeo = new THREE.RingGeometry(4, 8, 32);
+  var solGlowMat = new THREE.MeshBasicMaterial({ color: 0xFFD54F, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
+  var solGlow = new THREE.Mesh(solGlowGeo, solGlowMat);
+  solGlow.position.copy(solMarker.position);
+  solGlow.rotation.x = Math.PI / 2;
+  scene.add(solGlow);
+
+  // Controls
+  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.minDistance = 100;
+  controls.maxDistance = 8000;
+
+  // Resize
+  window.addEventListener('resize', function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  // Animate: slow galaxy rotation to suggest scale
+  function tick() {
+    requestAnimationFrame(tick);
+    galaxy.rotation.y += 0.00012;
+    solMarker.position.set(SOL_DISTANCE * Math.cos(galaxy.rotation.y), 0, SOL_DISTANCE * Math.sin(galaxy.rotation.y));
+    solGlow.position.copy(solMarker.position);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  tick();
+
+  document.getElementById('star-count').textContent = STAR_COUNT.toLocaleString();
+
+  setTimeout(function () {
+    var l = document.getElementById('loader');
+    if (l) { l.style.opacity = '0'; setTimeout(function () { l.style.display = 'none'; }, 600); }
+  }, 900);
+})();
+
+// ═══ TOP BAR WIRING ═══
+(function initTopBar() {
+  function ready() {
+    var brandEl = document.querySelector('.tb-brand-mark');
+    if (brandEl && RS && RS.BRAND_MARKS) {
+      brandEl.innerHTML = RS.BRAND_MARKS.solarsystem || '';
+    }
+    var navEl = document.getElementById('planet-nav');
+    if (navEl && RS && RS.renderPlanetNav) {
+      try { navEl.innerHTML = RS.renderPlanetNav('galactic'); } catch(e) {}
+    }
+    var authEl = document.getElementById('auth-btn-container');
+    if (authEl && RS && RS.renderAuthButton) {
+      try { authEl.innerHTML = RS.renderAuthButton(); } catch(e) {}
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
+  else ready();
+})();
+
+// Shared auth session
+(function initAuth() {
+  if (RS && RS.checkSession) {
+    try { RS.checkSession(function() {
+      var authEl = document.getElementById('auth-btn-container');
+      if (authEl && RS.renderAuthButton) authEl.innerHTML = RS.renderAuthButton();
+    }); } catch(e) {}
+  }
+})();
+</script>
+
+<div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;font-size:12px;color:#333">
+  <p>GalacticResource is the Corgan Studio Milky Way galactic intelligence platform. Procedural spiral-arm structure, Sgr A* supermassive black hole at center, Sol positioned 26,000 light-years from galactic core. Part of the Resource Systems multi-planetary suite alongside <a href="https://terraresource.net">TerraResource</a>, <a href="https://moonresource.com">MoonResource</a>, <a href="https://marsresource.net">MarsResource</a>, <a href="https://solarsystemresource.com">SolarSystemResource</a>, built by <a href="https://corganstudio.com">Corgan Studio</a>.</p>
+</div>
+</body>
+</html>
