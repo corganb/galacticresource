@@ -45,21 +45,13 @@
   .statusbar .label { text-transform: uppercase; letter-spacing: 0.08em; color: var(--t4); }
   .statusbar .value { color: var(--t2); margin-left: 4px; }
   .sb-right { margin-left: auto; display: flex; gap: 20px; }
-  #loader { position: fixed; inset: 0; z-index: 500; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; transition: opacity 0.6s; }
-  #loader .pulse { width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(circle at 38% 38%, #fff8 0%, #a0b8ff 60%, transparent 100%); animation: pulse 1.8s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.15); opacity: 1; } }
-  #loader .label { font-size: 10px; color: var(--t3); letter-spacing: 0.12em; text-transform: uppercase; }
   .tb-footlinks a { color: var(--t2); text-decoration: none; font-size: 9px; opacity: 0.5; }
   .tb-footlinks a:hover { color: var(--accent); }
   #sol-marker { position: absolute; pointer-events: none; color: var(--accent); font-size: 10px; letter-spacing: 0.05em; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 3px; display: none; }
 </style>
 </head>
 <body>
-
-<div id="loader">
-  <div class="pulse"></div>
-  <div class="label">Loading GalacticResource</div>
-</div>
 
 <div class="topbar">
   <div class="tb-brand" onclick="window.location.reload()">
