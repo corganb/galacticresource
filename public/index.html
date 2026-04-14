@@ -248,6 +248,58 @@
   }
   tick();
 
+  // ═══ REAL BRIGHT STAR CATALOG (Yale BSC, 9,096 naked-eye stars) ═══
+  // Loaded async; positioned on a celestial sphere around the galaxy for a
+  // real constellation-pattern overlay. Colors approximated from each star's
+  // surface temperature; sizes from visual magnitude (brighter -> larger).
+  function bbColor(tempK) {
+    if (tempK < 3500)  return [1.00, 0.55, 0.35];  // M: red
+    if (tempK < 5000)  return [1.00, 0.80, 0.55];  // K: orange
+    if (tempK < 6000)  return [1.00, 0.95, 0.75];  // G: yellow (Sun-like)
+    if (tempK < 7500)  return [1.00, 1.00, 0.95];  // F: white
+    if (tempK < 10000) return [0.90, 0.95, 1.00];  // A: blue-white
+    if (tempK < 30000) return [0.70, 0.85, 1.00];  // B: blue
+    return [0.55, 0.75, 1.00];                     // O: hot blue
+  }
+  fetch('data/bsc.json').then(function(r) { return r.json(); }).then(function(stars) {
+    var R = 900;
+    var geo = new THREE.BufferGeometry();
+    var pos = new Float32Array(stars.length * 3);
+    var col = new Float32Array(stars.length * 3);
+    for (var i = 0; i < stars.length; i++) {
+      var raH = stars[i][0], decD = stars[i][1], tempK = stars[i][2], mag = stars[i][3];
+      var ra = raH * 15 * Math.PI / 180;
+      var dec = decD * Math.PI / 180;
+      pos[i*3]   = R * Math.cos(dec) * Math.cos(ra);
+      pos[i*3+1] = R * Math.sin(dec);
+      pos[i*3+2] = R * Math.cos(dec) * Math.sin(ra);
+      var c = bbColor(tempK);
+      // Dim faint stars a bit; boost bright stars
+      var brightness = Math.max(0.3, Math.min(1.2, (6.5 - mag) / 4 + 0.6));
+      col[i*3]   = c[0] * brightness;
+      col[i*3+1] = c[1] * brightness;
+      col[i*3+2] = c[2] * brightness;
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    var mat = new THREE.PointsMaterial({
+      size: 2.0,
+      sizeAttenuation: false,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    scene.add(new THREE.Points(geo, mat));
+    // Update the STARS counter to reflect procedural + real total
+    var counter = document.getElementById('star-count');
+    if (counter) counter.textContent = (STAR_COUNT + stars.length).toLocaleString() + ' (' + stars.length.toLocaleString() + ' real BSC)';
+    console.log('[Galactic] Loaded', stars.length, 'real bright stars from Yale BSC');
+  }).catch(function(e) {
+    console.warn('[Galactic] BSC load failed:', e);
+  });
+
   document.getElementById('star-count').textContent = STAR_COUNT.toLocaleString();
 
   setTimeout(function () {
