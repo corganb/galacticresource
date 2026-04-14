@@ -300,6 +300,46 @@
     console.warn('[Galactic] BSC load failed:', e);
   });
 
+  // ═══ CONSTELLATION LINES (89 IAU constellations, d3-celestial data) ═══
+  // GeoJSON FeatureCollection of MultiLineString geometries. Each coordinate
+  // is [RA_deg, Dec_deg]. We project onto the same celestial sphere as the
+  // bright stars (radius 900) and render as LineSegments.
+  fetch('data/constellations.lines.json').then(function(r) { return r.json(); }).then(function(geojson) {
+    var R = 900;
+    var positions = [];  // flat array of x,y,z pairs for line segments
+    (geojson.features || []).forEach(function(feat) {
+      var lines = (feat.geometry && feat.geometry.coordinates) || [];
+      lines.forEach(function(line) {
+        // Each `line` is an array of [raDeg, decDeg] points. Emit as
+        // consecutive segments: (p0,p1), (p1,p2), (p2,p3), ...
+        for (var i = 0; i < line.length - 1; i++) {
+          var a = line[i], b = line[i + 1];
+          [a, b].forEach(function(p) {
+            var ra = p[0] * Math.PI / 180;
+            var dec = p[1] * Math.PI / 180;
+            positions.push(
+              R * Math.cos(dec) * Math.cos(ra),
+              R * Math.sin(dec),
+              R * Math.cos(dec) * Math.sin(ra)
+            );
+          });
+        }
+      });
+    });
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    var mat = new THREE.LineBasicMaterial({
+      color: 0x5078aa,
+      transparent: true,
+      opacity: 0.32,
+      depthWrite: false
+    });
+    scene.add(new THREE.LineSegments(geo, mat));
+    console.log('[Galactic] Loaded', (geojson.features || []).length, 'constellations');
+  }).catch(function(e) {
+    console.warn('[Galactic] constellation lines load failed:', e);
+  });
+
   document.getElementById('star-count').textContent = STAR_COUNT.toLocaleString();
 
   setTimeout(function () {
