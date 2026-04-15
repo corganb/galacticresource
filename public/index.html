@@ -155,6 +155,12 @@
         <input type="checkbox" id="f-hz">
         <span class="fv" style="flex:1;text-align:left;min-width:0">Earth-size only</span>
       </label>
+      <div style="margin-top:8px;display:grid;grid-template-columns:10px 1fr;gap:4px 6px;font-size:9.5px;color:var(--t3)">
+        <div style="width:10px;height:10px;border-radius:50%;background:#59f3ff;align-self:center"></div><span>Transit</span>
+        <div style="width:10px;height:10px;border-radius:50%;background:#ffa64d;align-self:center"></div><span>Radial velocity</span>
+        <div style="width:10px;height:10px;border-radius:50%;background:#ff73f2;align-self:center"></div><span>Direct imaging</span>
+        <div style="width:10px;height:10px;border-radius:50%;background:#ffe64d;align-self:center"></div><span>Microlensing</span>
+      </div>
     </div>
     <label class="layer-row loading" data-layer="constellations">
       <input type="checkbox"><span>IAU constellations</span><span class="lr-count" id="c-con">load</span>
@@ -620,9 +626,10 @@
   // Cygnus) and some hit toward galactic center microlensing lanes.
   // Exoplanet filter state - mutable from the sidebar controls.
   var exoFilter = { yearMax: 2030, hzOnly: false };
-  var exoSystemsAll = null;   // raw array, kept for filter rebuilds
-  var exoGeo = null;           // BufferGeometry (reused across rebuilds)
-  var exoPts = null;           // Points mesh
+  var exoSystemsAll = null;    // raw array, kept for filter rebuilds
+  var exoSystemsFiltered = []; // currently-rendered subset (hover lookup)
+  var exoGeo = null;            // BufferGeometry (reused across rebuilds)
+  var exoPts = null;            // Points mesh
   // Color by discovery method index: Transit=cyan, RV=orange,
   // Imaging=magenta, Microlensing=yellow, others=white.
   var METHOD_COLOR = {
@@ -648,6 +655,7 @@
       }
       filtered.push(s);
     }
+    exoSystemsFiltered = filtered;  // expose for hover lookup
 
     var pos = new Float32Array(filtered.length * 3);
     var col = new Float32Array(filtered.length * 3);
@@ -830,19 +838,53 @@
     });
     return list;
   }
+  // Name lookup for exoplanet method index -> readable string.
+  var METHOD_NAMES = {
+    1: 'Transit', 2: 'Radial velocity', 3: 'Direct imaging',
+    4: 'Microlensing',
+  };
+
   canvas.addEventListener('pointermove', function(ev) {
     var rect = canvas.getBoundingClientRect();
     mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
+
+    var html = null;
+
+    // First check notable-object mesh hits (nebulae, clusters, galaxies,
+    // nearby stars). These are sphere Meshes so they use the default
+    // raycaster threshold.
     var hits = raycaster.intersectObjects(pickableMeshes(), false);
     if (hits.length) {
       var u = hits[0].object.userData;
       var dist_ly = Math.round(u.dist_pc * PC_TO_LY);
-      hoverInfo.innerHTML =
+      html =
         '<div class="hi-name">' + u.name + '</div>' +
         '<div class="hi-kind">' + u.kind + ' - ' + dist_ly.toLocaleString() + ' ly</div>' +
         '<div class="hi-note">' + (u.note || '') + '</div>';
+    } else if (exoPts && exoPts.visible && exoSystemsFiltered.length) {
+      // Then test the exoplanet Points buffer. We use a slightly larger
+      // point threshold because the points are rendered small.
+      raycaster.params.Points = { threshold: 4 };
+      var pHits = raycaster.intersectObject(exoPts, false);
+      if (pHits.length) {
+        var idx = pHits[0].index;
+        var s = exoSystemsFiltered[idx];
+        if (s) {
+          var dist_ly2 = Math.round(s[2] * PC_TO_LY);
+          var method = METHOD_NAMES[s[6]] || 'Other';
+          html =
+            '<div class="hi-name">' + s[7] + '</div>' +
+            '<div class="hi-kind">EXOPLANET SYSTEM - ' + dist_ly2.toLocaleString() + ' ly</div>' +
+            '<div class="hi-note">' + s[3] + ' confirmed planet' + (s[3] > 1 ? 's' : '') +
+            ' - ' + method + (s[4] ? ' - discovered ' + s[4] : '') + '</div>';
+        }
+      }
+    }
+
+    if (html) {
+      hoverInfo.innerHTML = html;
       hoverInfo.style.display = 'block';
       hoverInfo.style.left = (ev.clientX - rect.left + 14) + 'px';
       hoverInfo.style.top  = (ev.clientY - rect.top + 14) + 'px';
