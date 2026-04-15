@@ -56,7 +56,7 @@
   .layer-row:hover { background: rgba(255,255,255,0.03); color: var(--t1); }
   .layer-row input { accent-color: #6a8fff; cursor: pointer; }
   .layer-row .lr-count { margin-left: auto; font-size: 9.5px; color: var(--t4); font-variant-numeric: tabular-nums; }
-  .layer-row.loading .lr-count { color: #6a8fff; animation: pulse 1.5s ease-in-out infinite; }
+  .layer-row.loading .lr-count { color: #6a8fff;  }
   .filter-box {
     padding: 4px 14px 8px 34px; font-size: 10px; color: var(--t3);
     border-bottom: 1px dashed rgba(255,255,255,0.04);
@@ -73,7 +73,7 @@
   .statusbar .label { text-transform: uppercase; letter-spacing: 0.08em; color: var(--t4); }
   .statusbar .value { color: var(--t2); margin-left: 4px; }
   .sb-right { margin-left: auto; display: flex; gap: 20px; }
-  @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+   }
   .tb-footlinks a { color: var(--t2); text-decoration: none; font-size: 9px; opacity: 0.5; }
   .tb-footlinks a:hover { color: var(--accent); }
   #hover-info {
@@ -200,7 +200,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
-<script src="resource-systems-core.js?v=11"></script>
+<script src="resource-systems-core.js?v=12"></script>
 
 <script>
 (function init() {
