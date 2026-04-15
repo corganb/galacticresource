@@ -125,6 +125,9 @@
     <label class="layer-row" data-layer="sol">
       <input type="checkbox" checked><span>Sol / Solar System</span><span class="lr-count">1</span>
     </label>
+    <label class="layer-row" data-layer="grid">
+      <input type="checkbox"><span>Distance grid (kly)</span><span class="lr-count">5</span>
+    </label>
 
     <h3>Real Catalogs</h3>
     <label class="layer-row loading" data-layer="bsc">
@@ -264,8 +267,10 @@
 
   // ═══ PROCEDURAL MILKY WAY SPIRAL ═══
   // Four spiral arms with scatter, central bulge, and sparse halo. This is
-  // the background plate - the real catalogs load on top.
-  var STAR_COUNT = 50000;
+  // the background plate - the real catalogs load on top. Reduced from
+  // 50k to 18k points so the scene reads cleaner and the real catalogs
+  // (BSC, exoplanets) stand out more clearly.
+  var STAR_COUNT = 18000;
   var positions = new Float32Array(STAR_COUNT * 3);
   var colors = new Float32Array(STAR_COUNT * 3);
   var sizes = new Float32Array(STAR_COUNT);
@@ -326,7 +331,7 @@
     colors[i*3]   = r;
     colors[i*3+1] = g;
     colors[i*3+2] = bl;
-    sizes[i] = 1.0 + Math.random() * 2.5;
+    sizes[i] = 0.6 + Math.random() * 1.4;
   }
 
   // ═══ GALACTIC FRAME ═══
@@ -346,11 +351,11 @@
 
   var galaxyMat = new THREE.PointsMaterial({
     map: STAR_TEXTURE,
-    size: 4.0,
+    size: 2.4,
     sizeAttenuation: true,
     vertexColors: true,
     transparent: true,
-    opacity: 0.85,
+    opacity: 0.65,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
     alphaTest: 0.01,
@@ -367,6 +372,7 @@
     arms: null,
     sgra: null,
     sol: null,
+    grid: null,
     bsc: null,
     exo: null,
     constellations: null,
@@ -375,6 +381,48 @@
     galaxies: null,
     nearstars: null,
   };
+
+  // ═══ DISTANCE GRID ═══
+  // Concentric rings at 10, 20, 30, 40, 50 kly around the galactic center
+  // plus a Sol->GC vector arrow. Lets users eyeball how far from the core
+  // any body sits. Starts hidden; toggle on via the sidebar.
+  (function grid() {
+    var group = new THREE.Group();
+    var ringKly = [10, 20, 30, 40, 50];
+    ringKly.forEach(function(kly) {
+      var r = kly * 10;  // 1 unit = 100 ly -> 1 kly = 10 units
+      var pts = [];
+      for (var k = 0; k <= 256; k++) {
+        var th = (k / 256) * Math.PI * 2;
+        pts.push(new THREE.Vector3(r * Math.cos(th), 0, r * Math.sin(th)));
+      }
+      var mat = new THREE.LineBasicMaterial({
+        color: 0x3a6099, transparent: true, opacity: 0.35, depthWrite: false,
+      });
+      group.add(new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts), mat
+      ));
+      // Distance label floating just above the plane at theta=0
+      var sp = makeSpriteLabel(kly + ' kly', '#6a8fff', 0.03);
+      sp.position.set(r, 8, 0);
+      group.add(sp);
+    });
+    // Sol vector: from GC along +X to Sol position (260 units = 26 kly)
+    var solLine = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(260, 0, 0),
+      ]),
+      new THREE.LineBasicMaterial({
+        color: 0xFFD54F, transparent: true, opacity: 0.5, depthWrite: false,
+      })
+    );
+    group.add(solLine);
+
+    group.visible = false;  // off by default
+    galacticFrame.add(group);
+    layers.grid = group;
+  })();
 
   // ═══ Sgr A* ═══ galactic center black hole
   (function sgrA() {
@@ -499,8 +547,8 @@
     geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
     var mat = new THREE.PointsMaterial({
       map: STAR_TEXTURE,
-      size: 4.0, sizeAttenuation: false, vertexColors: true,
-      transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending,
+      size: 2.6, sizeAttenuation: false, vertexColors: true,
+      transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending,
       depthWrite: false, alphaTest: 0.01,
     });
     var pts = new THREE.Points(geo, mat);
@@ -614,8 +662,8 @@
     exoGeo = new THREE.BufferGeometry();
     var mat = new THREE.PointsMaterial({
       map: STAR_TEXTURE,
-      size: 5.0, sizeAttenuation: false, vertexColors: true,
-      transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending,
+      size: 3.2, sizeAttenuation: false, vertexColors: true,
+      transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending,
       depthWrite: false, alphaTest: 0.01,
     });
     exoPts = new THREE.Points(exoGeo, mat);
