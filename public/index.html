@@ -87,9 +87,17 @@
   #hover-info .hi-name { font-weight: 600; color: var(--accent); font-size: 11.5px; margin-bottom: 2px; }
   #hover-info .hi-kind { font-size: 9px; text-transform: uppercase; color: var(--t3); letter-spacing: 0.08em; }
   #hover-info .hi-note { margin-top: 3px; color: var(--t2); }
+  .sb-toggle {
+    display: none; position: absolute; top: 8px; left: 8px;
+    width: 40px; height: 40px; background: var(--panel-bg);
+    border: 1px solid var(--b2); border-radius: 6px;
+    color: var(--t1); font-size: 20px; cursor: pointer; z-index: 60;
+    line-height: 1;
+  }
   @media (max-width: 700px) {
-    .sidebar { position: absolute; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.25s; }
-    .sidebar.open { transform: translateX(0); }
+    .sidebar { position: absolute; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.25s; width: min(260px, 82vw); }
+    .sidebar.open { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,0.6); }
+    .sb-toggle { display: flex; align-items: center; justify-content: center; }
   }
 </style>
 </head>
@@ -169,6 +177,7 @@
 
   <div id="scene-wrap">
     <canvas id="scene"></canvas>
+    <button class="sb-toggle" id="mobile-sb-toggle" aria-label="Toggle layers" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
     <div id="hover-info"></div>
   </div>
 </div>
