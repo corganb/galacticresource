@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GalacticResource | Milky Way Galactic Intelligence | Corgan Studio</title>
-<meta name="description" content="GalacticResource is the Corgan Studio galactic-scale intelligence platform. Procedural Milky Way spiral, Gaia star catalog subset, stellar populations, and the path to Sgr A*.">
-<meta name="keywords" content="Milky Way, galaxy, galactic, Gaia, Sagittarius A*, stellar populations, spiral galaxy, Corgan Studio, Resource Systems">
+<meta name="description" content="GalacticResource is the Corgan Studio Milky Way intelligence platform. Procedural spiral arms, real Yale Bright Star Catalog, 4500+ NASA exoplanet systems, Sgr A*, and notable nebulae, star clusters, and Local Group galaxies.">
+<meta name="keywords" content="Milky Way, galaxy, galactic, Gaia, NASA Exoplanet Archive, Sagittarius A*, stellar populations, spiral galaxy, Corgan Studio, Resource Systems">
 <link rel="canonical" href="https://galacticresource.com">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta property="og:title" content="GalacticResource | Milky Way Intelligence">
-<meta property="og:description" content="Procedural Milky Way spiral with Gaia stars, spiral-arm structure, and Sol position at 26,000 light-years from galactic center.">
+<meta property="og:description" content="Procedural Milky Way with Yale BSC stars, 4500+ NASA exoplanet systems, IAU constellations, and labeled nebulae, clusters, and Local Group galaxies.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://galacticresource.com">
 <meta property="og:site_name" content="GalacticResource">
@@ -39,16 +39,48 @@
   .tb-brand > div:last-child { display: flex; flex-direction: column; line-height: 1.15; font-size: 13px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
   .tb-subtitle { font-size: 8.5px; color: var(--t3); font-weight: 400; letter-spacing: 0.08em; text-transform: none; }
   .tb-btn { padding: 5px 10px; background: transparent; border: 1px solid var(--b2); border-radius: 6px; color: var(--t3); font-size: 11.5px; cursor: pointer; }
-  .content { flex: 1; position: relative; }
+  .content { flex: 1; position: relative; display: flex; }
+  .sidebar {
+    width: 232px; flex-shrink: 0; background: var(--panel-bg); border-right: 1px solid var(--b1);
+    overflow-y: auto; padding: 10px 0 20px 0; font-size: 11.5px;
+  }
+  .sidebar h3 {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--t4); padding: 12px 14px 6px 14px; font-weight: 600;
+  }
+  .layer-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px; cursor: pointer; user-select: none;
+    color: var(--t2);
+  }
+  .layer-row:hover { background: rgba(255,255,255,0.03); color: var(--t1); }
+  .layer-row input { accent-color: #6a8fff; cursor: pointer; }
+  .layer-row .lr-count { margin-left: auto; font-size: 9.5px; color: var(--t4); font-variant-numeric: tabular-nums; }
+  .layer-row.loading .lr-count { color: #6a8fff; animation: pulse 1.5s ease-in-out infinite; }
+  #scene-wrap { flex: 1; position: relative; min-width: 0; }
   #scene { width: 100%; height: 100%; display: block; }
   .statusbar { height: 22px; background: var(--panel-bg); border-top: 1px solid var(--b1); display: flex; align-items: center; padding: 0 12px; font-size: 9.5px; color: var(--t4); letter-spacing: 0.03em; gap: 20px; }
   .statusbar .label { text-transform: uppercase; letter-spacing: 0.08em; color: var(--t4); }
   .statusbar .value { color: var(--t2); margin-left: 4px; }
   .sb-right { margin-left: auto; display: flex; gap: 20px; }
-  @keyframes pulse { 0%,100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.15); opacity: 1; } }
+  @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
   .tb-footlinks a { color: var(--t2); text-decoration: none; font-size: 9px; opacity: 0.5; }
   .tb-footlinks a:hover { color: var(--accent); }
-  #sol-marker { position: absolute; pointer-events: none; color: var(--accent); font-size: 10px; letter-spacing: 0.05em; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 3px; display: none; }
+  #hover-info {
+    position: absolute; pointer-events: none; left: 0; top: 0;
+    background: rgba(0,0,0,0.82); border: 1px solid var(--b2);
+    padding: 6px 10px; border-radius: 4px;
+    color: var(--t1); font-size: 10.5px; line-height: 1.4;
+    max-width: 280px; display: none; z-index: 50;
+    letter-spacing: 0.01em;
+  }
+  #hover-info .hi-name { font-weight: 600; color: var(--accent); font-size: 11.5px; margin-bottom: 2px; }
+  #hover-info .hi-kind { font-size: 9px; text-transform: uppercase; color: var(--t3); letter-spacing: 0.08em; }
+  #hover-info .hi-note { margin-top: 3px; color: var(--t2); }
+  @media (max-width: 700px) {
+    .sidebar { position: absolute; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.25s; }
+    .sidebar.open { transform: translateX(0); }
+  }
 </style>
 </head>
 <body>
@@ -69,16 +101,60 @@
 </div>
 
 <div class="content">
-  <canvas id="scene"></canvas>
-  <div id="sol-marker">SOL &middot; 26 kly from center</div>
+  <aside class="sidebar" id="sidebar">
+    <h3>Galactic Structure</h3>
+    <label class="layer-row" data-layer="spiral">
+      <input type="checkbox" checked><span>Procedural spiral + halo</span><span class="lr-count" id="c-spiral">50k</span>
+    </label>
+    <label class="layer-row" data-layer="arms">
+      <input type="checkbox" checked><span>Spiral arm labels</span><span class="lr-count" id="c-arms">6</span>
+    </label>
+    <label class="layer-row" data-layer="sgra">
+      <input type="checkbox" checked><span>Sgr A* (galactic center)</span><span class="lr-count">1</span>
+    </label>
+    <label class="layer-row" data-layer="sol">
+      <input type="checkbox" checked><span>Sol / Solar System</span><span class="lr-count">1</span>
+    </label>
+
+    <h3>Real Catalogs</h3>
+    <label class="layer-row loading" data-layer="bsc">
+      <input type="checkbox" checked><span>Yale Bright Stars</span><span class="lr-count" id="c-bsc">load</span>
+    </label>
+    <label class="layer-row loading" data-layer="exo">
+      <input type="checkbox" checked><span>NASA Exoplanet systems</span><span class="lr-count" id="c-exo">load</span>
+    </label>
+    <label class="layer-row loading" data-layer="constellations">
+      <input type="checkbox"><span>IAU constellations</span><span class="lr-count" id="c-con">load</span>
+    </label>
+
+    <h3>Notable Objects</h3>
+    <label class="layer-row loading" data-layer="nebulae">
+      <input type="checkbox" checked><span>Nebulae &amp; SN remnants</span><span class="lr-count" id="c-neb">load</span>
+    </label>
+    <label class="layer-row loading" data-layer="clusters">
+      <input type="checkbox" checked><span>Star clusters</span><span class="lr-count" id="c-clu">load</span>
+    </label>
+    <label class="layer-row loading" data-layer="galaxies">
+      <input type="checkbox" checked><span>Local Group galaxies</span><span class="lr-count" id="c-gal">load</span>
+    </label>
+    <label class="layer-row loading" data-layer="nearstars">
+      <input type="checkbox" checked><span>Notable nearby stars</span><span class="lr-count" id="c-nst">load</span>
+    </label>
+  </aside>
+
+  <div id="scene-wrap">
+    <canvas id="scene"></canvas>
+    <div id="hover-info"></div>
+  </div>
 </div>
 
 <div class="statusbar">
   <div><span class="label">FRAME</span><span class="value">Galactic ICRS</span></div>
   <div><span class="label">BODY</span><span class="value">Milky Way</span></div>
   <div><span class="label">STARS</span><span class="value" id="star-count">-</span></div>
+  <div><span class="label">EXOPLANETS</span><span class="value" id="exo-count">-</span></div>
   <div class="sb-right">
-    <div><span class="label">VERSION</span><span class="value">v0.1</span></div>
+    <div><span class="label">VERSION</span><span class="value">v0.2</span></div>
   </div>
 </div>
 
@@ -89,20 +165,63 @@
 <script>
 (function init() {
   var canvas = document.getElementById('scene');
+  var sceneWrap = document.getElementById('scene-wrap');
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0x020308);
-  scene.fog = new THREE.FogExp2(0x020308, 0.0005);
+  scene.fog = new THREE.FogExp2(0x020308, 0.00025);
 
-  var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 20000);
-  camera.position.set(0, 800, 1500);
+  var w = sceneWrap.clientWidth, h = sceneWrap.clientHeight;
+  var camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 60000);
+  camera.position.set(320, 400, 900);
 
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(w, h);
+
+  // ═══ SCENE UNIT CONVENTIONS ═══
+  // 1 scene unit = 100 light-years. Galactic center is at the scene origin.
+  // Sol sits at (260, 0, 0) = 26,000 ly on +X. Galactic plane is scene X-Z,
+  // scene +Y is galactic north. Spiral rotates about scene Y.
+  var LY_PER_SCENE = 100;
+  var PC_TO_LY = 3.26156;
+  var PC_TO_SCENE = PC_TO_LY / LY_PER_SCENE;   // 1 pc -> 0.0326 scene units
+  var SOL_DISTANCE = 260;
+  var SOL_POS = new THREE.Vector3(SOL_DISTANCE, 0, 0);
+
+  // ICRS -> galactic rotation matrix (standard J2000, Hipparcos docs).
+  // Columns are [X_G toward GC, Y_G direction of rotation, Z_G north pole]
+  // expressed in ICRS equatorial cartesian coords.
+  var ICRS_TO_GAL = [
+    [-0.0548755604, -0.8734370902, -0.4838350155],
+    [ 0.4941094279, -0.4448296300,  0.7469822445],
+    [-0.8676661490, -0.1980763734,  0.4559837762],
+  ];
+
+  // Convert (RA_deg, Dec_deg, dist_pc) heliocentric -> scene position in
+  // scene units, anchored at Sol inside the procedural galaxy. The galactic
+  // axes are mapped: galactic_X -> scene -X, galactic_Y -> scene +Z,
+  // galactic_Z -> scene +Y (right-handed, places GC at origin).
+  function icrsToScene(raDeg, decDeg, distPc) {
+    var ra = raDeg * Math.PI / 180;
+    var dec = decDeg * Math.PI / 180;
+    var cd = Math.cos(dec);
+    var xi = distPc * cd * Math.cos(ra);
+    var yi = distPc * cd * Math.sin(ra);
+    var zi = distPc * Math.sin(dec);
+    // Galactic cartesian (parsec)
+    var xg = ICRS_TO_GAL[0][0]*xi + ICRS_TO_GAL[0][1]*yi + ICRS_TO_GAL[0][2]*zi;
+    var yg = ICRS_TO_GAL[1][0]*xi + ICRS_TO_GAL[1][1]*yi + ICRS_TO_GAL[1][2]*zi;
+    var zg = ICRS_TO_GAL[2][0]*xi + ICRS_TO_GAL[2][1]*yi + ICRS_TO_GAL[2][2]*zi;
+    // Parsec -> scene units, then map axes and offset from Sol.
+    var sx = SOL_POS.x + (-xg) * PC_TO_SCENE;
+    var sy = SOL_POS.y + ( zg) * PC_TO_SCENE;
+    var sz = SOL_POS.z + ( yg) * PC_TO_SCENE;
+    return new THREE.Vector3(sx, sy, sz);
+  }
 
   // ═══ PROCEDURAL MILKY WAY SPIRAL ═══
-  // Four spiral arms with two branches each, logarithmic spiral a=100, b=0.28.
-  // Central bulge = dense core cluster. Outer halo = sparse field.
+  // Four spiral arms with scatter, central bulge, and sparse halo. This is
+  // the background plate - the real catalogs load on top.
   var STAR_COUNT = 50000;
   var positions = new Float32Array(STAR_COUNT * 3);
   var colors = new Float32Array(STAR_COUNT * 3);
@@ -111,46 +230,51 @@
   var ARM_COUNT = 4;
   var ARM_OFFSET = (Math.PI * 2) / ARM_COUNT;
 
+  function gaussian() {
+    var u = 0, v = 0;
+    while (u === 0) u = Math.random();
+    while (v === 0) v = Math.random();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+  }
+
   function logSpiralR(theta, a, b) { return a * Math.exp(b * theta); }
 
   for (var i = 0; i < STAR_COUNT; i++) {
     var roll = Math.random();
-    var x, y, z;
-    var r, g, bl;
+    var x, y, z, r, g, bl;
 
     if (roll < 0.30) {
-      // Central bulge (30%): gaussian-ish distribution near origin
+      // Central bulge (30%): gaussian distribution near origin
       var rr = Math.abs(gaussian()) * 120;
       var th = Math.random() * Math.PI * 2;
       var ph = (Math.random() - 0.5) * 0.4;
       x = rr * Math.cos(th);
       y = rr * Math.sin(ph) * 80;
       z = rr * Math.sin(th);
-      r = 1.0; g = 0.88; bl = 0.65;  // yellow-white
+      r = 1.0; g = 0.88; bl = 0.65;
     } else if (roll < 0.85) {
       // Spiral arms (55%): logarithmic spiral with scatter
       var arm = Math.floor(Math.random() * ARM_COUNT);
-      var theta = Math.random() * 6;  // 0 to ~2 full turns
+      var theta = Math.random() * 6;
       var rBase = logSpiralR(theta, 60, 0.28);
       var jitter = (Math.random() - 0.5) * Math.max(30, rBase * 0.25);
       var armAngle = theta + arm * ARM_OFFSET + (Math.random() - 0.5) * 0.35;
       x = (rBase + jitter) * Math.cos(armAngle);
       z = (rBase + jitter) * Math.sin(armAngle);
       y = (Math.random() - 0.5) * Math.max(10, rBase * 0.04);
-      // Color by radial distance: inner = yellow, outer = blue-white
       var t = Math.min(1, rBase / 1200);
       r = 1.0 - t * 0.4;
       g = 0.9 - t * 0.1;
       bl = 0.7 + t * 0.3;
     } else {
-      // Halo / field stars (15%): sparse scatter in large volume
+      // Halo / field stars (15%)
       var rh = 300 + Math.random() * 1400;
       var thh = Math.random() * Math.PI * 2;
       var phh = Math.acos(2 * Math.random() - 1);
       x = rh * Math.sin(phh) * Math.cos(thh);
       y = rh * Math.cos(phh) * 0.3;
       z = rh * Math.sin(phh) * Math.sin(thh);
-      r = 0.8; g = 0.85; bl = 1.0;  // blue-white
+      r = 0.8; g = 0.85; bl = 1.0;
     }
 
     positions[i*3]   = x;
@@ -160,13 +284,6 @@
     colors[i*3+1] = g;
     colors[i*3+2] = bl;
     sizes[i] = 1.0 + Math.random() * 2.5;
-  }
-
-  function gaussian() {
-    var u = 0, v = 0;
-    while (u === 0) u = Math.random();
-    while (v === 0) v = Math.random();
-    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
   }
 
   var galaxyGeo = new THREE.BufferGeometry();
@@ -186,133 +303,172 @@
   var galaxy = new THREE.Points(galaxyGeo, galaxyMat);
   scene.add(galaxy);
 
-  // Central black hole (Sgr A*) - small hot spot
+  // ═══ LAYER REGISTRY ═══
+  // Each layer stores its root THREE.Object3D (Points/Group/LineSegments) so
+  // the sidebar checkboxes can toggle visibility. All layers start enabled
+  // except the constellation lines.
+  var layers = {
+    spiral: galaxy,
+    arms: null,
+    sgra: null,
+    sol: null,
+    bsc: null,
+    exo: null,
+    constellations: null,
+    nebulae: null,
+    clusters: null,
+    galaxies: null,
+    nearstars: null,
+  };
+
+  // ═══ Sgr A* ═══ galactic center black hole
   (function sgrA() {
+    var group = new THREE.Group();
     var geo = new THREE.SphereGeometry(4, 32, 16);
     var mat = new THREE.MeshBasicMaterial({ color: 0xffddaa });
-    var mesh = new THREE.Mesh(geo, mat);
-    scene.add(mesh);
-    // Glow ring
+    group.add(new THREE.Mesh(geo, mat));
     var ringGeo = new THREE.RingGeometry(6, 18, 64);
     var ringMat = new THREE.MeshBasicMaterial({ color: 0xffaa55, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
     var ring = new THREE.Mesh(ringGeo, ringMat);
     ring.rotation.x = Math.PI / 2;
-    scene.add(ring);
+    group.add(ring);
+    // Label
+    group.add(makeSpriteLabel('Sgr A*', '#ffddaa', 0.07));
+    scene.add(group);
+    layers.sgra = group;
   })();
 
-  // Sol marker at ~26,000 ly from center = ~260 scene units (1 unit = 100 ly)
-  var SOL_DISTANCE = 260;
-  var solMarkerGeo = new THREE.SphereGeometry(2, 12, 8);
-  var solMarkerMat = new THREE.MeshBasicMaterial({ color: 0xFFD54F });
-  var solMarker = new THREE.Mesh(solMarkerGeo, solMarkerMat);
-  solMarker.position.set(SOL_DISTANCE, 0, 0);
-  scene.add(solMarker);
-  // Small glow
-  var solGlowGeo = new THREE.RingGeometry(4, 8, 32);
-  var solGlowMat = new THREE.MeshBasicMaterial({ color: 0xFFD54F, side: THREE.DoubleSide, transparent: true, opacity: 0.3 });
-  var solGlow = new THREE.Mesh(solGlowGeo, solGlowMat);
-  solGlow.position.copy(solMarker.position);
-  solGlow.rotation.x = Math.PI / 2;
-  scene.add(solGlow);
+  // ═══ Sol marker ═══ fixed at (260,0,0), does NOT rotate with galaxy
+  (function solMarker() {
+    var group = new THREE.Group();
+    group.position.copy(SOL_POS);
+    var geo = new THREE.SphereGeometry(2, 16, 12);
+    var mat = new THREE.MeshBasicMaterial({ color: 0xFFD54F });
+    group.add(new THREE.Mesh(geo, mat));
+    var ringGeo = new THREE.RingGeometry(4, 7, 32);
+    var ringMat = new THREE.MeshBasicMaterial({ color: 0xFFD54F, side: THREE.DoubleSide, transparent: true, opacity: 0.4 });
+    var ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 2;
+    group.add(ring);
+    group.add(makeSpriteLabel('SOL - 26 kly from center', '#FFD54F', 0.05));
+    scene.add(group);
+    layers.sol = group;
+  })();
+
+  // ═══ Canvas sprite label helper ═══
+  // Draws stroked text on a canvas and wraps it in a Sprite so labels always
+  // face the camera. `scale` controls world-space height of the sprite.
+  function makeSpriteLabel(text, colorHex, scale) {
+    var c = document.createElement('canvas');
+    c.width = 512; c.height = 64;
+    var ctx = c.getContext('2d');
+    ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.strokeStyle = 'rgba(0,0,0,0.95)'; ctx.lineWidth = 5;
+    ctx.strokeText(text, 256, 32);
+    ctx.fillStyle = colorHex || '#ffffff';
+    ctx.fillText(text, 256, 32);
+    var tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    var sp = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: tex, transparent: true, depthWrite: false, depthTest: false,
+    }));
+    var s = scale || 0.05;
+    sp.scale.set(s * 512, s * 64, 1);  // proportional to canvas aspect
+    sp.position.set(0, 6, 0);
+    return sp;
+  }
 
   // Controls
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
-  controls.minDistance = 100;
-  controls.maxDistance = 8000;
+  controls.minDistance = 50;
+  controls.maxDistance = 15000;
 
-  // Resize
+  // Resize tracks the scene wrap, not the window, because the sidebar takes
+  // fixed width on desktop and collapses on mobile.
   window.addEventListener('resize', function () {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    var w = sceneWrap.clientWidth, h = sceneWrap.clientHeight;
+    camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(w, h);
   });
 
-  // Animate: slow galaxy rotation to suggest scale
+  // Slow drift of the procedural spiral only. Real catalogs + markers are
+  // locked to the galactic frame so Sol stays at 26 kly from the center.
   function tick() {
     requestAnimationFrame(tick);
-    galaxy.rotation.y += 0.00012;
-    solMarker.position.set(SOL_DISTANCE * Math.cos(galaxy.rotation.y), 0, SOL_DISTANCE * Math.sin(galaxy.rotation.y));
-    solGlow.position.copy(solMarker.position);
+    galaxy.rotation.y += 0.00008;
     controls.update();
     renderer.render(scene, camera);
   }
   tick();
 
-  // ═══ REAL BRIGHT STAR CATALOG (Yale BSC, 9,096 naked-eye stars) ═══
-  // Loaded async; positioned on a celestial sphere around the galaxy for a
-  // real constellation-pattern overlay. Colors approximated from each star's
-  // surface temperature; sizes from visual magnitude (brighter -> larger).
+  // ═══ REAL BRIGHT STAR CATALOG (Yale BSC) ═══
   function bbColor(tempK) {
-    if (tempK < 3500)  return [1.00, 0.55, 0.35];  // M: red
-    if (tempK < 5000)  return [1.00, 0.80, 0.55];  // K: orange
-    if (tempK < 6000)  return [1.00, 0.95, 0.75];  // G: yellow (Sun-like)
-    if (tempK < 7500)  return [1.00, 1.00, 0.95];  // F: white
-    if (tempK < 10000) return [0.90, 0.95, 1.00];  // A: blue-white
-    if (tempK < 30000) return [0.70, 0.85, 1.00];  // B: blue
-    return [0.55, 0.75, 1.00];                     // O: hot blue
+    if (tempK < 3500)  return [1.00, 0.55, 0.35];
+    if (tempK < 5000)  return [1.00, 0.80, 0.55];
+    if (tempK < 6000)  return [1.00, 0.95, 0.75];
+    if (tempK < 7500)  return [1.00, 1.00, 0.95];
+    if (tempK < 10000) return [0.90, 0.95, 1.00];
+    if (tempK < 30000) return [0.70, 0.85, 1.00];
+    return [0.55, 0.75, 1.00];
   }
   fetch('data/bsc.json').then(function(r) { return r.json(); }).then(function(stars) {
-    var R = 900;
-    var geo = new THREE.BufferGeometry();
+    var R = 900;  // celestial sphere radius (scene units)
     var pos = new Float32Array(stars.length * 3);
     var col = new Float32Array(stars.length * 3);
     for (var i = 0; i < stars.length; i++) {
       var raH = stars[i][0], decD = stars[i][1], tempK = stars[i][2], mag = stars[i][3];
       var ra = raH * 15 * Math.PI / 180;
       var dec = decD * Math.PI / 180;
-      pos[i*3]   = R * Math.cos(dec) * Math.cos(ra);
-      pos[i*3+1] = R * Math.sin(dec);
-      pos[i*3+2] = R * Math.cos(dec) * Math.sin(ra);
+      // Sky-sphere positioned around Sol (not origin), since these are the
+      // stars we see FROM Sol.
+      pos[i*3]   = SOL_POS.x + R * Math.cos(dec) * Math.cos(ra);
+      pos[i*3+1] = SOL_POS.y + R * Math.sin(dec);
+      pos[i*3+2] = SOL_POS.z + R * Math.cos(dec) * Math.sin(ra);
       var c = bbColor(tempK);
-      // Dim faint stars a bit; boost bright stars
       var brightness = Math.max(0.3, Math.min(1.2, (6.5 - mag) / 4 + 0.6));
       col[i*3]   = c[0] * brightness;
       col[i*3+1] = c[1] * brightness;
       col[i*3+2] = c[2] * brightness;
     }
+    var geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
     var mat = new THREE.PointsMaterial({
-      size: 2.0,
-      sizeAttenuation: false,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.95,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
+      size: 2.0, sizeAttenuation: false, vertexColors: true,
+      transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false,
     });
-    scene.add(new THREE.Points(geo, mat));
-    // Update the STARS counter to reflect procedural + real total
-    var counter = document.getElementById('star-count');
-    if (counter) counter.textContent = (STAR_COUNT + stars.length).toLocaleString() + ' (' + stars.length.toLocaleString() + ' real BSC)';
-    console.log('[Galactic] Loaded', stars.length, 'real bright stars from Yale BSC');
+    var pts = new THREE.Points(geo, mat);
+    scene.add(pts);
+    layers.bsc = pts;
+    setCount('c-bsc', stars.length);
+    removeLoading('bsc');
+    document.getElementById('star-count').textContent =
+      (STAR_COUNT + stars.length).toLocaleString() + ' (' + stars.length.toLocaleString() + ' real)';
   }).catch(function(e) {
     console.warn('[Galactic] BSC load failed:', e);
+    removeLoading('bsc');
   });
 
-  // ═══ CONSTELLATION LINES (89 IAU constellations, d3-celestial data) ═══
-  // GeoJSON FeatureCollection of MultiLineString geometries. Each coordinate
-  // is [RA_deg, Dec_deg]. We project onto the same celestial sphere as the
-  // bright stars (radius 900) and render as LineSegments.
+  // ═══ IAU CONSTELLATION LINES ═══
   fetch('data/constellations.lines.json').then(function(r) { return r.json(); }).then(function(geojson) {
     var R = 900;
-    var positions = [];  // flat array of x,y,z pairs for line segments
+    var positions = [];
     (geojson.features || []).forEach(function(feat) {
       var lines = (feat.geometry && feat.geometry.coordinates) || [];
       lines.forEach(function(line) {
-        // Each `line` is an array of [raDeg, decDeg] points. Emit as
-        // consecutive segments: (p0,p1), (p1,p2), (p2,p3), ...
         for (var i = 0; i < line.length - 1; i++) {
           var a = line[i], b = line[i + 1];
           [a, b].forEach(function(p) {
             var ra = p[0] * Math.PI / 180;
             var dec = p[1] * Math.PI / 180;
             positions.push(
-              R * Math.cos(dec) * Math.cos(ra),
-              R * Math.sin(dec),
-              R * Math.cos(dec) * Math.sin(ra)
+              SOL_POS.x + R * Math.cos(dec) * Math.cos(ra),
+              SOL_POS.y + R * Math.sin(dec),
+              SOL_POS.z + R * Math.cos(dec) * Math.sin(ra)
             );
           });
         }
@@ -321,38 +477,216 @@
     var geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
     var mat = new THREE.LineBasicMaterial({
-      color: 0x5078aa,
-      transparent: true,
-      opacity: 0.32,
-      depthWrite: false
+      color: 0x5078aa, transparent: true, opacity: 0.32, depthWrite: false,
     });
-    scene.add(new THREE.LineSegments(geo, mat));
-    console.log('[Galactic] Loaded', (geojson.features || []).length, 'constellations');
+    var lines = new THREE.LineSegments(geo, mat);
+    lines.visible = false;  // starts off
+    scene.add(lines);
+    layers.constellations = lines;
+    setCount('c-con', (geojson.features || []).length);
+    removeLoading('constellations');
   }).catch(function(e) {
     console.warn('[Galactic] constellation lines load failed:', e);
+    removeLoading('constellations');
   });
 
-  document.getElementById('star-count').textContent = STAR_COUNT.toLocaleString();
+  // ═══ NASA EXOPLANET ARCHIVE ═══
+  // 4500+ host star systems with confirmed planets. Positioned in true
+  // galactic coordinates via icrsToScene() so they cluster realistically
+  // around Sol (most transit discoveries are in the Kepler field toward
+  // Cygnus) and some hit toward galactic center microlensing lanes.
+  fetch('data/exoplanets.json').then(function(r) { return r.json(); }).then(function(payload) {
+    var systems = payload.systems;
+    var pos = new Float32Array(systems.length * 3);
+    var col = new Float32Array(systems.length * 3);
+    var sz = new Float32Array(systems.length);
+    // Color by discovery method index: Transit=cyan, RV=orange,
+    // Imaging=magenta, Microlensing=yellow, others=white.
+    var METHOD_COLOR = {
+      1: [0.35, 0.95, 1.00],  // Transit - cyan
+      2: [1.00, 0.65, 0.30],  // Radial Velocity - orange
+      3: [1.00, 0.45, 0.95],  // Imaging - magenta
+      4: [1.00, 0.90, 0.30],  // Microlensing - yellow
+    };
+    for (var i = 0; i < systems.length; i++) {
+      var s = systems[i];  // [ra, dec, dist_pc, n, year, r_e, method_code, host]
+      var v = icrsToScene(s[0], s[1], s[2]);
+      pos[i*3] = v.x; pos[i*3+1] = v.y; pos[i*3+2] = v.z;
+      var c = METHOD_COLOR[s[6]] || [0.85, 0.85, 0.95];
+      col[i*3] = c[0]; col[i*3+1] = c[1]; col[i*3+2] = c[2];
+      // Size grows with planet count in system
+      sz[i] = 2.0 + Math.min(6, (s[3] - 1) * 0.6);
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    geo.setAttribute('size', new THREE.BufferAttribute(sz, 1));
+    var mat = new THREE.PointsMaterial({
+      size: 3.0, sizeAttenuation: false, vertexColors: true,
+      transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    var pts = new THREE.Points(geo, mat);
+    scene.add(pts);
+    layers.exo = pts;
+    setCount('c-exo', systems.length);
+    removeLoading('exo');
+    document.getElementById('exo-count').textContent = systems.length.toLocaleString();
+  }).catch(function(e) {
+    console.warn('[Galactic] exoplanet load failed:', e);
+    removeLoading('exo');
+  });
 
-  setTimeout(function () {
-    var l = document.getElementById('loader');
-    if (l) { l.style.opacity = '0'; setTimeout(function () { l.style.display = 'none'; }, 600); }
-  }, 900);
+  // ═══ NOTABLE OBJECTS (nebulae, clusters, galaxies, nearby stars) ═══
+  // Each object gets a colored sphere marker with canvas label. Objects are
+  // grouped into category groups so they can be toggled independently.
+  var CATEGORY = {
+    nebula:      { group: 'nebulae',  color: 0xff5a6e, size: 3.0 },
+    remnant:     { group: 'nebulae',  color: 0xff8055, size: 3.0 },
+    starforming: { group: 'nebulae',  color: 0xff7fa0, size: 3.0 },
+    cluster:     { group: 'clusters', color: 0xa0ffcc, size: 2.6 },
+    galaxy:      { group: 'galaxies', color: 0xb58cff, size: 4.0 },
+    blackhole:   { group: 'sgra',     color: 0xffddaa, size: 0 }, // already added
+    structure:   { group: 'arms',     color: 0xffffff, size: 0 },
+    star:        { group: 'nearstars',color: 0xffe066, size: 2.2 },
+    exosystem:   { group: 'nearstars',color: 0x80c0ff, size: 2.4 },
+  };
+  fetch('data/galactic-objects.json').then(function(r) { return r.json(); }).then(function(data) {
+    var groups = {
+      nebulae:   new THREE.Group(),
+      clusters:  new THREE.Group(),
+      galaxies:  new THREE.Group(),
+      nearstars: new THREE.Group(),
+    };
+    var counts = { nebulae: 0, clusters: 0, galaxies: 0, nearstars: 0 };
+
+    (data.objects || []).forEach(function(o) {
+      var spec = CATEGORY[o.kind];
+      if (!spec || !groups[spec.group]) return;
+
+      var pos = icrsToScene(o.ra, o.dec, o.dist_pc);
+      var geo = new THREE.SphereGeometry(spec.size, 12, 8);
+      var mat = new THREE.MeshBasicMaterial({ color: spec.color });
+      var mesh = new THREE.Mesh(geo, mat);
+      mesh.position.copy(pos);
+      mesh.userData = { name: o.name, kind: o.kind, note: o.note, dist_pc: o.dist_pc };
+
+      var hexColor = '#' + spec.color.toString(16).padStart(6, '0');
+      var label = makeSpriteLabel(o.name, hexColor, 0.035);
+      label.position.set(0, spec.size + 3, 0);
+      mesh.add(label);
+
+      groups[spec.group].add(mesh);
+      counts[spec.group]++;
+    });
+
+    Object.keys(groups).forEach(function(k) {
+      scene.add(groups[k]);
+      layers[k] = groups[k];
+    });
+
+    setCount('c-neb', counts.nebulae);
+    setCount('c-clu', counts.clusters);
+    setCount('c-gal', counts.galaxies);
+    setCount('c-nst', counts.nearstars);
+    removeLoading('nebulae');
+    removeLoading('clusters');
+    removeLoading('galaxies');
+    removeLoading('nearstars');
+
+    // ═══ SPIRAL ARM LABELS ═══
+    // Each arm gets a sprite at approximate radius+angle, floating above the
+    // galactic plane so it's readable without obscuring stars.
+    var armsGroup = new THREE.Group();
+    (data.arms || []).forEach(function(a) {
+      // r_kly converts to scene units (1 unit = 100 ly = 0.1 kly)
+      var r = a.r_kly * 10;
+      var th = a.theta_deg * Math.PI / 180;
+      var x = r * Math.cos(th);
+      var z = r * Math.sin(th);
+      var sp = makeSpriteLabel(a.name, '#9cc0ff', 0.06);
+      sp.position.set(x, 40, z);  // float above plane
+      armsGroup.add(sp);
+    });
+    scene.add(armsGroup);
+    layers.arms = armsGroup;
+    setCount('c-arms', (data.arms || []).length);
+  }).catch(function(e) {
+    console.warn('[Galactic] galactic-objects load failed:', e);
+    ['nebulae','clusters','galaxies','nearstars','arms'].forEach(removeLoading);
+  });
+
+  // ═══ SIDEBAR WIRING ═══
+  function setCount(id, n) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = (typeof n === 'number') ? n.toLocaleString() : n;
+  }
+  function removeLoading(layerKey) {
+    var row = document.querySelector('.layer-row[data-layer="' + layerKey + '"]');
+    if (row) row.classList.remove('loading');
+  }
+  document.querySelectorAll('.layer-row').forEach(function(row) {
+    var cb = row.querySelector('input[type=checkbox]');
+    var key = row.getAttribute('data-layer');
+    cb.addEventListener('change', function() {
+      var obj = layers[key];
+      if (obj) obj.visible = cb.checked;
+    });
+  });
+
+  // ═══ HOVER INFO ═══
+  // Raycasts notable-object meshes so hovering over a labeled marker shows
+  // its name/kind/note/distance. Pure QoL; exoplanet Points are not picked.
+  var raycaster = new THREE.Raycaster();
+  raycaster.params.Points = { threshold: 3 };
+  var mouse = new THREE.Vector2();
+  var hoverInfo = document.getElementById('hover-info');
+  function pickableMeshes() {
+    var list = [];
+    ['nebulae','clusters','galaxies','nearstars'].forEach(function(k) {
+      var g = layers[k];
+      if (g && g.visible) g.children.forEach(function(m) { if (m.userData && m.userData.name) list.push(m); });
+    });
+    return list;
+  }
+  canvas.addEventListener('pointermove', function(ev) {
+    var rect = canvas.getBoundingClientRect();
+    mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    var hits = raycaster.intersectObjects(pickableMeshes(), false);
+    if (hits.length) {
+      var u = hits[0].object.userData;
+      var dist_ly = Math.round(u.dist_pc * PC_TO_LY);
+      hoverInfo.innerHTML =
+        '<div class="hi-name">' + u.name + '</div>' +
+        '<div class="hi-kind">' + u.kind + ' - ' + dist_ly.toLocaleString() + ' ly</div>' +
+        '<div class="hi-note">' + (u.note || '') + '</div>';
+      hoverInfo.style.display = 'block';
+      hoverInfo.style.left = (ev.clientX - rect.left + 14) + 'px';
+      hoverInfo.style.top  = (ev.clientY - rect.top + 14) + 'px';
+    } else {
+      hoverInfo.style.display = 'none';
+    }
+  });
+  canvas.addEventListener('pointerleave', function() { hoverInfo.style.display = 'none'; });
+
+  document.getElementById('star-count').textContent = STAR_COUNT.toLocaleString();
+  document.getElementById('exo-count').textContent = '-';
 })();
 
 // ═══ TOP BAR WIRING ═══
 (function initTopBar() {
   function ready() {
     var brandEl = document.querySelector('.tb-brand-mark');
-    if (brandEl && RS && RS.BRAND_MARKS) {
+    if (brandEl && window.RS && RS.BRAND_MARKS) {
       brandEl.innerHTML = RS.BRAND_MARKS.solarsystem || '';
     }
     var navEl = document.getElementById('planet-nav');
-    if (navEl && RS && RS.renderPlanetNav) {
+    if (navEl && window.RS && RS.renderPlanetNav) {
       try { navEl.innerHTML = RS.renderPlanetNav('galactic'); } catch(e) {}
     }
     var authEl = document.getElementById('auth-btn-container');
-    if (authEl && RS && RS.renderAuthButton) {
+    if (authEl && window.RS && RS.renderAuthButton) {
       try { authEl.innerHTML = RS.renderAuthButton(); } catch(e) {}
     }
   }
@@ -360,9 +694,8 @@
   else ready();
 })();
 
-// Shared auth session
 (function initAuth() {
-  if (RS && RS.checkSession) {
+  if (window.RS && RS.checkSession) {
     try { RS.checkSession(function() {
       var authEl = document.getElementById('auth-btn-container');
       if (authEl && RS.renderAuthButton) authEl.innerHTML = RS.renderAuthButton();
@@ -372,7 +705,7 @@
 </script>
 
 <div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;font-size:12px;color:#333">
-  <p>GalacticResource is the Corgan Studio Milky Way galactic intelligence platform. Procedural spiral-arm structure, Sgr A* supermassive black hole at center, Sol positioned 26,000 light-years from galactic core. Part of the Resource Systems multi-planetary suite alongside <a href="https://terraresource.net">TerraResource</a>, <a href="https://moonresource.com">MoonResource</a>, <a href="https://marsresource.net">MarsResource</a>, <a href="https://solarsystemresource.com">SolarSystemResource</a>, built by <a href="https://corganstudio.com">Corgan Studio</a>.</p>
+  <p>GalacticResource is the Corgan Studio Milky Way intelligence platform. Procedural spiral-arm background, Yale Bright Star Catalog (9,096 stars), 4,563 NASA Exoplanet Archive host systems plotted in true galactic coordinates, Sgr A* supermassive black hole at galactic center, Sol positioned 26,000 light-years from core, labeled spiral arms (Perseus, Sagittarius, Scutum-Centaurus, Norma, Outer, Orion Spur), notable nebulae (Orion, Eagle, Crab, Lagoon, Tarantula), globular clusters (Omega Centauri, 47 Tucanae, M13), Local Group galaxies (M31 Andromeda, M33 Triangulum, LMC, SMC). Part of the Resource Systems multi-planetary suite alongside <a href="https://terraresource.net">TerraResource</a>, <a href="https://moonresource.com">MoonResource</a>, <a href="https://marsresource.net">MarsResource</a>, <a href="https://solarsystemresource.com">SolarSystemResource</a>, built by <a href="https://corganstudio.com">Corgan Studio</a>.</p>
 </div>
 </body>
 </html>

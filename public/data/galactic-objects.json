@@ -1,0 +1,48 @@
+{
+  "_comment": "Notable Milky Way objects for the GalacticResource viewer. Each entry has name, category, ICRS equatorial coordinates (RA/Dec), distance in parsecs, and a short note. Distances from SIMBAD / NASA HEASARC / literature. kind: nebula|cluster|remnant|structure|blackhole|galaxy|starforming",
+  "objects": [
+    { "name": "Sgr A*",           "kind": "blackhole",  "ra": 266.4168, "dec": -29.0078, "dist_pc": 8178,    "note": "Supermassive black hole at galactic center, 4.1e6 solar masses" },
+    { "name": "Orion Nebula",      "kind": "nebula",     "ra":  83.8221, "dec":  -5.3911, "dist_pc": 412,     "note": "M42, nearest massive star-forming region, ~24 ly across" },
+    { "name": "Eagle Nebula",      "kind": "starforming","ra": 274.7000, "dec": -13.8069, "dist_pc": 2100,    "note": "M16, Pillars of Creation region, Sagittarius Arm" },
+    { "name": "Crab Nebula",       "kind": "remnant",    "ra":  83.6331, "dec":  22.0145, "dist_pc": 2000,    "note": "M1, remnant of SN 1054 supernova, contains Crab Pulsar" },
+    { "name": "Eta Carinae",       "kind": "nebula",     "ra": 161.2650, "dec": -59.6843, "dist_pc": 2300,    "note": "Luminous blue variable binary system, candidate for future supernova" },
+    { "name": "Lagoon Nebula",     "kind": "nebula",     "ra": 270.9042, "dec": -24.3867, "dist_pc": 1250,    "note": "M8, giant interstellar cloud in Sagittarius" },
+    { "name": "Tarantula Nebula",  "kind": "starforming","ra":  84.6750, "dec": -69.1011, "dist_pc": 49970,   "note": "30 Doradus, in LMC, most active starburst in Local Group" },
+    { "name": "Rosette Nebula",    "kind": "starforming","ra":  97.9500, "dec":   4.9500, "dist_pc": 1350,    "note": "Open cluster NGC 2244 + surrounding emission nebula" },
+    { "name": "Horsehead Nebula",  "kind": "nebula",     "ra":  85.2458, "dec":  -2.4583, "dist_pc": 420,     "note": "Dark nebula in Orion, silhouetted against IC 434" },
+    { "name": "Veil Nebula",       "kind": "remnant",    "ra": 312.7500, "dec":  30.7000, "dist_pc": 735,     "note": "Cygnus Loop supernova remnant, ~8000 yr old" },
+
+    { "name": "Omega Centauri",    "kind": "cluster",    "ra": 201.6970, "dec": -47.4796, "dist_pc": 5430,    "note": "Largest globular cluster in Milky Way, ~10 million stars" },
+    { "name": "47 Tucanae",        "kind": "cluster",    "ra":   6.0224, "dec": -72.0808, "dist_pc": 4450,    "note": "Second-brightest globular cluster, contains many millisecond pulsars" },
+    { "name": "M13 (Hercules)",    "kind": "cluster",    "ra": 250.4217, "dec":  36.4603, "dist_pc": 7200,    "note": "Great Hercules Cluster, target of Arecibo message 1974" },
+    { "name": "Pleiades (M45)",    "kind": "cluster",    "ra":  56.7500, "dec":  24.1167, "dist_pc": 136,     "note": "Nearest bright open cluster, ~800 stars, age 115 Myr" },
+    { "name": "Hyades",            "kind": "cluster",    "ra":  66.7542, "dec":  15.8678, "dist_pc": 47,      "note": "Nearest open cluster to Sol, age 625 Myr" },
+    { "name": "Double Cluster",    "kind": "cluster",    "ra":  34.7208, "dec":  57.1372, "dist_pc": 2340,    "note": "NGC 869 + NGC 884, both in Perseus Arm" },
+
+    { "name": "Andromeda (M31)",   "kind": "galaxy",     "ra":  10.6847, "dec":  41.2692, "dist_pc": 765000,  "note": "Nearest large spiral galaxy, collision with Milky Way in ~4.5 Gyr" },
+    { "name": "Triangulum (M33)",  "kind": "galaxy",     "ra":  23.4621, "dec":  30.6602, "dist_pc": 840000,  "note": "Third-largest galaxy in Local Group" },
+    { "name": "LMC",               "kind": "galaxy",     "ra":  80.8942, "dec": -69.7561, "dist_pc": 49970,   "note": "Large Magellanic Cloud, Milky Way satellite" },
+    { "name": "SMC",               "kind": "galaxy",     "ra":  13.1867, "dec": -72.8286, "dist_pc": 62440,   "note": "Small Magellanic Cloud, Milky Way satellite" },
+
+    { "name": "Proxima Centauri",  "kind": "star",       "ra": 217.4289, "dec": -62.6795, "dist_pc": 1.30,    "note": "Nearest star to Sol, hosts Proxima b (potentially habitable)" },
+    { "name": "Alpha Centauri AB", "kind": "star",       "ra": 219.9021, "dec": -60.8339, "dist_pc": 1.34,    "note": "Nearest stellar system, closest Sun-like star (Alpha Cen A)" },
+    { "name": "Barnard's Star",    "kind": "star",       "ra": 269.4520, "dec":   4.6933, "dist_pc": 1.83,    "note": "Second-nearest stellar system, highest proper motion known" },
+    { "name": "Sirius",            "kind": "star",       "ra": 101.2871, "dec": -16.7161, "dist_pc": 2.64,    "note": "Brightest star in sky, binary with white dwarf Sirius B" },
+    { "name": "Betelgeuse",        "kind": "star",       "ra":  88.7929, "dec":   7.4071, "dist_pc": 168,     "note": "Red supergiant in Orion, candidate for nearby supernova" },
+    { "name": "Rigel",             "kind": "star",       "ra":  78.6345, "dec":  -8.2016, "dist_pc": 264,     "note": "Blue supergiant in Orion, ~120000x Sol luminosity" },
+    { "name": "Polaris",           "kind": "star",       "ra":  37.9546, "dec":  89.2641, "dist_pc": 133,     "note": "Current north celestial pole star, Cepheid variable" },
+    { "name": "Vega",              "kind": "star",       "ra": 279.2347, "dec":  38.7837, "dist_pc": 7.68,    "note": "A0V star with debris disk, former and future pole star" },
+
+    { "name": "TRAPPIST-1",        "kind": "exosystem",  "ra": 346.6223, "dec":  -5.0414, "dist_pc": 12.43,   "note": "Ultra-cool dwarf with 7 terrestrial planets, 3 in habitable zone" },
+    { "name": "Kepler-186",        "kind": "exosystem",  "ra": 298.5792, "dec":  43.9561, "dist_pc": 178.5,   "note": "Hosts Kepler-186f, first Earth-size planet in HZ of another star" },
+    { "name": "HD 209458",         "kind": "exosystem",  "ra": 330.7950, "dec":  18.8843, "dist_pc": 48.37,   "note": "First exoplanet observed in transit (HD 209458 b, Osiris)" }
+  ],
+  "arms": [
+    { "name": "Perseus Arm",           "r_kly":  25, "theta_deg":  240, "extent_deg": 140 },
+    { "name": "Scutum-Centaurus Arm",  "r_kly":  16, "theta_deg":   60, "extent_deg": 170 },
+    { "name": "Sagittarius Arm",       "r_kly":  22, "theta_deg":  180, "extent_deg": 130 },
+    { "name": "Norma Arm",             "r_kly":  14, "theta_deg":  300, "extent_deg": 120 },
+    { "name": "Outer Arm",             "r_kly":  42, "theta_deg":  120, "extent_deg": 100 },
+    { "name": "Orion Spur",            "r_kly":  26, "theta_deg":  330, "extent_deg":  30, "note": "Local, contains Sol" }
+  ]
+}
