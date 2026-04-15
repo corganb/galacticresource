@@ -57,6 +57,16 @@
   .layer-row input { accent-color: #6a8fff; cursor: pointer; }
   .layer-row .lr-count { margin-left: auto; font-size: 9.5px; color: var(--t4); font-variant-numeric: tabular-nums; }
   .layer-row.loading .lr-count { color: #6a8fff; animation: pulse 1.5s ease-in-out infinite; }
+  .filter-box {
+    padding: 4px 14px 8px 34px; font-size: 10px; color: var(--t3);
+    border-bottom: 1px dashed rgba(255,255,255,0.04);
+  }
+  .filter-box .fr { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .filter-box .fr label { flex-shrink: 0; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--t4); min-width: 52px; }
+  .filter-box .fr input[type=range] { flex: 1; accent-color: #6a8fff; }
+  .filter-box .fr .fv { font-size: 10px; color: var(--t2); min-width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
+  .filter-box .fr.hz { cursor: pointer; user-select: none; }
+  .filter-box .fr.hz input { accent-color: #6a8fff; }
   #scene-wrap { flex: 1; position: relative; min-width: 0; }
   #scene { width: 100%; height: 100%; display: block; }
   .statusbar { height: 22px; background: var(--panel-bg); border-top: 1px solid var(--b1); display: flex; align-items: center; padding: 0 12px; font-size: 9.5px; color: var(--t4); letter-spacing: 0.03em; gap: 20px; }
@@ -123,6 +133,18 @@
     <label class="layer-row loading" data-layer="exo">
       <input type="checkbox" checked><span>NASA Exoplanet systems</span><span class="lr-count" id="c-exo">load</span>
     </label>
+    <div class="filter-box" id="exo-filters">
+      <div class="fr">
+        <label>Year</label>
+        <input type="range" id="f-year" min="2000" max="2030" value="2030" step="1">
+        <span class="fv" id="f-year-v">2030</span>
+      </div>
+      <label class="fr hz" for="f-hz">
+        <label>Size</label>
+        <input type="checkbox" id="f-hz">
+        <span class="fv" style="flex:1;text-align:left;min-width:0">Earth-size only</span>
+      </label>
+    </div>
     <label class="layer-row loading" data-layer="constellations">
       <input type="checkbox"><span>IAU constellations</span><span class="lr-count" id="c-con">load</span>
     </label>
@@ -437,6 +459,7 @@
   function tick() {
     requestAnimationFrame(tick);
     galacticFrame.rotation.y += 0.00003;
+    if (window.__galactic_tickHook) window.__galactic_tickHook();
     controls.update();
     renderer.render(scene, camera);
   }
@@ -534,44 +557,72 @@
   // galactic coordinates via icrsToScene() so they cluster realistically
   // around Sol (most transit discoveries are in the Kepler field toward
   // Cygnus) and some hit toward galactic center microlensing lanes.
-  fetch('data/exoplanets.json').then(function(r) { return r.json(); }).then(function(payload) {
-    var systems = payload.systems;
-    var pos = new Float32Array(systems.length * 3);
-    var col = new Float32Array(systems.length * 3);
-    var sz = new Float32Array(systems.length);
-    // Color by discovery method index: Transit=cyan, RV=orange,
-    // Imaging=magenta, Microlensing=yellow, others=white.
-    var METHOD_COLOR = {
-      1: [0.35, 0.95, 1.00],  // Transit - cyan
-      2: [1.00, 0.65, 0.30],  // Radial Velocity - orange
-      3: [1.00, 0.45, 0.95],  // Imaging - magenta
-      4: [1.00, 0.90, 0.30],  // Microlensing - yellow
-    };
-    for (var i = 0; i < systems.length; i++) {
-      var s = systems[i];  // [ra, dec, dist_pc, n, year, r_e, method_code, host]
-      var v = icrsToScene(s[0], s[1], s[2]);
-      pos[i*3] = v.x; pos[i*3+1] = v.y; pos[i*3+2] = v.z;
-      var c = METHOD_COLOR[s[6]] || [0.85, 0.85, 0.95];
-      col[i*3] = c[0]; col[i*3+1] = c[1]; col[i*3+2] = c[2];
-      // Size grows with planet count in system
-      sz[i] = 2.0 + Math.min(6, (s[3] - 1) * 0.6);
+  // Exoplanet filter state - mutable from the sidebar controls.
+  var exoFilter = { yearMax: 2030, hzOnly: false };
+  var exoSystemsAll = null;   // raw array, kept for filter rebuilds
+  var exoGeo = null;           // BufferGeometry (reused across rebuilds)
+  var exoPts = null;           // Points mesh
+  // Color by discovery method index: Transit=cyan, RV=orange,
+  // Imaging=magenta, Microlensing=yellow, others=white.
+  var METHOD_COLOR = {
+    1: [0.35, 0.95, 1.00],
+    2: [1.00, 0.65, 0.30],
+    3: [1.00, 0.45, 0.95],
+    4: [1.00, 0.90, 0.30],
+  };
+
+  function rebuildExoBuffers() {
+    if (!exoSystemsAll) return;
+    // Filter systems against current exoFilter settings
+    var filtered = [];
+    for (var i = 0; i < exoSystemsAll.length; i++) {
+      var s = exoSystemsAll[i];  // [ra, dec, dist_pc, n, year, r_e, method, host]
+      if (s[4] && s[4] > exoFilter.yearMax) continue;
+      // Habitable-zone proxy: Earth-size (0.5 to 2.0 Earth radii). Proper
+      // HZ requires stellar luminosity which is not in the compact dataset;
+      // this is a reasonable first-pass filter for "potentially habitable".
+      if (exoFilter.hzOnly) {
+        var r = s[5] || 0;
+        if (r < 0.5 || r > 2.0) continue;
+      }
+      filtered.push(s);
     }
-    var geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    geo.setAttribute('size', new THREE.BufferAttribute(sz, 1));
+
+    var pos = new Float32Array(filtered.length * 3);
+    var col = new Float32Array(filtered.length * 3);
+    var sz  = new Float32Array(filtered.length);
+    for (var j = 0; j < filtered.length; j++) {
+      var f = filtered[j];
+      var v = icrsToScene(f[0], f[1], f[2]);
+      pos[j*3] = v.x; pos[j*3+1] = v.y; pos[j*3+2] = v.z;
+      var c = METHOD_COLOR[f[6]] || [0.85, 0.85, 0.95];
+      col[j*3] = c[0]; col[j*3+1] = c[1]; col[j*3+2] = c[2];
+      sz[j] = 2.0 + Math.min(6, (f[3] - 1) * 0.6);
+    }
+    exoGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    exoGeo.setAttribute('color',    new THREE.BufferAttribute(col, 3));
+    exoGeo.setAttribute('size',     new THREE.BufferAttribute(sz, 1));
+    exoGeo.attributes.position.needsUpdate = true;
+
+    setCount('c-exo', filtered.length);
+    var ec = document.getElementById('exo-count');
+    if (ec) ec.textContent = filtered.length.toLocaleString();
+  }
+
+  fetch('data/exoplanets.json').then(function(r) { return r.json(); }).then(function(payload) {
+    exoSystemsAll = payload.systems;
+    exoGeo = new THREE.BufferGeometry();
     var mat = new THREE.PointsMaterial({
       map: STAR_TEXTURE,
       size: 5.0, sizeAttenuation: false, vertexColors: true,
       transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending,
       depthWrite: false, alphaTest: 0.01,
     });
-    var pts = new THREE.Points(geo, mat);
-    galacticFrame.add(pts);
-    layers.exo = pts;
-    setCount('c-exo', systems.length);
+    exoPts = new THREE.Points(exoGeo, mat);
+    galacticFrame.add(exoPts);
+    layers.exo = exoPts;
+    rebuildExoBuffers();
     removeLoading('exo');
-    document.getElementById('exo-count').textContent = systems.length.toLocaleString();
   }).catch(function(e) {
     console.warn('[Galactic] exoplanet load failed:', e);
     removeLoading('exo');
@@ -674,6 +725,35 @@
     });
   });
 
+  // Exoplanet filter wiring. The year slider and Earth-size checkbox
+  // update exoFilter state and trigger a BufferGeometry rebuild. Debounced
+  // via requestAnimationFrame so dragging the slider stays responsive.
+  var filterRebuildQueued = false;
+  function queueRebuild() {
+    if (filterRebuildQueued) return;
+    filterRebuildQueued = true;
+    requestAnimationFrame(function() {
+      filterRebuildQueued = false;
+      rebuildExoBuffers();
+    });
+  }
+  var yearEl = document.getElementById('f-year');
+  var yearValEl = document.getElementById('f-year-v');
+  if (yearEl) {
+    yearEl.addEventListener('input', function() {
+      exoFilter.yearMax = parseInt(yearEl.value, 10);
+      yearValEl.textContent = yearEl.value;
+      queueRebuild();
+    });
+  }
+  var hzEl = document.getElementById('f-hz');
+  if (hzEl) {
+    hzEl.addEventListener('change', function() {
+      exoFilter.hzOnly = hzEl.checked;
+      queueRebuild();
+    });
+  }
+
   // ═══ HOVER INFO ═══
   // Raycasts notable-object meshes so hovering over a labeled marker shows
   // its name/kind/note/distance. Pure QoL; exoplanet Points are not picked.
@@ -710,6 +790,46 @@
     }
   });
   canvas.addEventListener('pointerleave', function() { hoverInfo.style.display = 'none'; });
+
+  // ═══ CLICK-TO-FOCUS ═══
+  // Clicking a notable-object marker smoothly flies the OrbitControls
+  // target and camera toward that body. The target's world position is
+  // captured at click time (the object lives inside the rotating
+  // galacticFrame, so we need its CURRENT world position, not local).
+  // Ease-in-out interpolation over ~50 frames feels deliberate.
+  var flyAnim = null;
+  function flyToObject(mesh) {
+    var targetEnd = mesh.getWorldPosition(new THREE.Vector3());
+    var targetStart = controls.target.clone();
+    var camStart = camera.position.clone();
+    // Park the camera at a distance proportional to the current camera
+    // distance from the picked body, staying on the same viewing direction
+    // so the user's orientation stays consistent.
+    var dir = camStart.clone().sub(targetStart).normalize();
+    var desiredDist = Math.max(25, Math.min(400, targetEnd.distanceTo(camStart) * 0.18));
+    var camEnd = targetEnd.clone().add(dir.multiplyScalar(desiredDist));
+    flyAnim = { t: 0, ts: targetStart, te: targetEnd, cs: camStart, ce: camEnd };
+  }
+  canvas.addEventListener('click', function(ev) {
+    var rect = canvas.getBoundingClientRect();
+    mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    var hits = raycaster.intersectObjects(pickableMeshes(), false);
+    if (hits.length) flyToObject(hits[0].object);
+  });
+  // The fly animation is driven by a side effect hooked into the render
+  // loop below via window-level callback (the tick() closure runs before
+  // this block is evaluated, so we expose an updater that tick() will
+  // call each frame).
+  window.__galactic_tickHook = function() {
+    if (!flyAnim) return;
+    flyAnim.t = Math.min(1, flyAnim.t + 0.022);
+    var e = 0.5 - 0.5 * Math.cos(Math.PI * flyAnim.t);  // ease in-out
+    controls.target.lerpVectors(flyAnim.ts, flyAnim.te, e);
+    camera.position.lerpVectors(flyAnim.cs, flyAnim.ce, e);
+    if (flyAnim.t >= 1) flyAnim = null;
+  };
 
   document.getElementById('star-count').textContent = STAR_COUNT.toLocaleString();
   document.getElementById('exo-count').textContent = '-';
