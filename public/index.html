@@ -188,6 +188,27 @@
   var SOL_DISTANCE = 260;
   var SOL_POS = new THREE.Vector3(SOL_DISTANCE, 0, 0);
 
+  // ═══ STAR SPRITE TEXTURE ═══
+  // PointsMaterial renders square quads by default; applying a radial
+  // gradient texture turns each point into a soft round star. Generated
+  // once and shared across every Points layer (galaxy, BSC, exoplanets).
+  var STAR_TEXTURE = (function() {
+    var c = document.createElement('canvas');
+    c.width = 64; c.height = 64;
+    var ctx = c.getContext('2d');
+    var grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0.00, 'rgba(255,255,255,1)');
+    grad.addColorStop(0.25, 'rgba(255,255,255,0.75)');
+    grad.addColorStop(0.55, 'rgba(255,255,255,0.25)');
+    grad.addColorStop(1.00, 'rgba(255,255,255,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 64, 64);
+    var tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    return tex;
+  })();
+
   // ICRS -> galactic rotation matrix (standard J2000, Hipparcos docs).
   // Columns are [X_G toward GC, Y_G direction of rotation, Z_G north pole]
   // expressed in ICRS equatorial cartesian coords.
@@ -292,13 +313,15 @@
   galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
   var galaxyMat = new THREE.PointsMaterial({
-    size: 2.0,
+    map: STAR_TEXTURE,
+    size: 4.0,
     sizeAttenuation: true,
     vertexColors: true,
     transparent: true,
     opacity: 0.85,
     blending: THREE.AdditiveBlending,
-    depthWrite: false
+    depthWrite: false,
+    alphaTest: 0.01,
   });
   var galaxy = new THREE.Points(galaxyGeo, galaxyMat);
   scene.add(galaxy);
@@ -438,8 +461,10 @@
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
     var mat = new THREE.PointsMaterial({
-      size: 2.0, sizeAttenuation: false, vertexColors: true,
-      transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false,
+      map: STAR_TEXTURE,
+      size: 4.0, sizeAttenuation: false, vertexColors: true,
+      transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending,
+      depthWrite: false, alphaTest: 0.01,
     });
     var pts = new THREE.Points(geo, mat);
     scene.add(pts);
@@ -522,8 +547,10 @@
     geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
     geo.setAttribute('size', new THREE.BufferAttribute(sz, 1));
     var mat = new THREE.PointsMaterial({
-      size: 3.0, sizeAttenuation: false, vertexColors: true,
-      transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false,
+      map: STAR_TEXTURE,
+      size: 5.0, sizeAttenuation: false, vertexColors: true,
+      transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending,
+      depthWrite: false, alphaTest: 0.01,
     });
     var pts = new THREE.Points(geo, mat);
     scene.add(pts);
