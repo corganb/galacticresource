@@ -30,9 +30,9 @@
   }
   html, body { height: 100%; width: 100%; overflow: hidden; background: var(--bg); color: var(--t1); font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
   body { display: flex; flex-direction: column; }
-  .topbar { height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 14px; background: var(--panel-bg); backdrop-filter: blur(14px); border-bottom: 1px solid var(--b1); flex-shrink: 0; z-index: 100; }
+  .topbar { position: relative; height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 14px; background: var(--panel-bg); backdrop-filter: blur(14px); border-bottom: 1px solid var(--b1); flex-shrink: 0; z-index: 100; }
   .tb-center { flex: 1; justify-content: center; display: flex; }
-  .tb-right { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+  .tb-right { position: absolute; right: 14px; top: 0; height: 44px; display: flex; gap: 6px; align-items: center; }
   .tb-brand { display: flex; align-items: center; gap: 8px; cursor: pointer; }
   .tb-brand-mark { width: 26px; height: 26px; }
   .tb-brand-mark svg { width: 26px; height: 26px; }
