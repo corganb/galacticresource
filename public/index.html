@@ -116,7 +116,7 @@
   <div class="tb-center"><div id="planet-nav"></div></div>
   <div class="tb-right">
     <div id="auth-btn-container"></div>
-    <span class="tb-footlinks" style="display:flex;gap:8px;margin-left:8px"><a href="https://instagram.com/resourcesystems" target="_blank">IG</a><a href="https://x.com/resource_sys" target="_blank">X</a><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+    <div id="foot-links-container"></div>
   </div>
 </div>
 
@@ -203,7 +203,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
-<script src="resource-systems-core.js?v=12"></script>
+<script src="resource-systems-core.js?v=13"></script>
 
 <script>
 (function init() {
@@ -972,6 +972,10 @@
     var authEl = document.getElementById('auth-btn-container');
     if (authEl && window.RS && RS.renderAuthButton) {
       try { authEl.innerHTML = RS.renderAuthButton(); } catch(e) {}
+    }
+    var footEl = document.getElementById('foot-links-container');
+    if (footEl && window.RS && RS.renderFootLinks) {
+      try { footEl.innerHTML = RS.renderFootLinks(); } catch(e) {}
     }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
