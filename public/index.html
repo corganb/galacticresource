@@ -39,6 +39,9 @@
   .tb-brand > div:last-child { display: flex; flex-direction: column; line-height: 1.15; font-size: 13px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
   .tb-subtitle { font-size: 8.5px; color: var(--t3); font-weight: 400; letter-spacing: 0.08em; text-transform: none; }
   .tb-btn { padding: 5px 10px; background: transparent; border: 1px solid var(--b2); border-radius: 6px; color: var(--t3); font-size: 11.5px; cursor: pointer; }
+  .planet-nav { display: flex; gap: 3px; }
+  .tb-footlinks a { color: var(--t2); text-decoration: none; }
+  .tb-footlinks a:hover { color: var(--accent); }
   .content { flex: 1; position: relative; display: flex; }
   .sidebar {
     width: 232px; flex-shrink: 0; background: var(--panel-bg); border-right: 1px solid var(--b1);
@@ -113,7 +116,7 @@
       <span class="tb-subtitle">a Corgan Studio intelligence platform</span>
     </div>
   </div>
-  <div class="tb-center"><div id="planet-nav"></div></div>
+  <div class="tb-center"><div class="planet-nav" id="planet-nav"></div></div>
   <div class="tb-right">
     <div id="auth-btn-container"></div>
     <div id="foot-links-container"></div>
