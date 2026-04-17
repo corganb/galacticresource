@@ -43,13 +43,13 @@
   .tb-footlinks a { color: var(--t2); text-decoration: none; }
   .tb-footlinks a:hover { color: var(--accent); }
   .content { flex: 1; position: relative; display: flex; }
-  .sidebar {
+  .sidebar-left {
     width: 232px; flex-shrink: 0; background: var(--panel-bg); border-right: 1px solid var(--b1);
     overflow-y: auto; padding: 10px 0 20px 0; font-size: 11.5px;
   }
 
-  .sidebar.shut { width: 0; padding: 0; overflow: hidden; border: none; opacity: 0; transition: width 0.2s, opacity 0.2s; }
-  .sidebar h3 {
+  .sidebar-left.shut { width: 0; padding: 0; overflow: hidden; border: none; opacity: 0; transition: width 0.2s, opacity 0.2s; }
+  .sidebar-left h3 {
     font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em;
     color: var(--t4); padding: 12px 14px 6px 14px; font-weight: 600;
   }
@@ -100,8 +100,8 @@
     line-height: 1;
   }
   @media (max-width: 768px) {
-    .sidebar { position: absolute; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.25s; width: min(260px, 82vw); }
-    .sidebar.open { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,0.6); }
+    .sidebar-left { position: absolute; left: 0; top: 0; bottom: 0; z-index: 40; transform: translateX(-100%); transition: transform 0.25s; width: min(260px, 82vw); }
+    .sidebar-left.open { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,0.6); }
     .sb-toggle { display: flex; align-items: center; justify-content: center; }
   }
   #reset-view { position: absolute; bottom: 12px; left: 12px; z-index: 55; width: 38px; height: 38px; background: var(--panel-bg); backdrop-filter: blur(14px); border: 1px solid var(--b2); border-radius: 6px; color: var(--t2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -112,7 +112,7 @@
 
 <div class="topbar" id="rs-topbar" style="height:52px;padding:0 20px;display:flex;align-items:center;position:relative"></div>
 <div class="content">
-  <aside class="sidebar" id="sidebar">
+  <aside class="sidebar-left" id="sidebar" class="sidebar-left">
     <h3>Galactic Structure</h3>
     <label class="layer-row" data-layer="spiral">
       <input type="checkbox" checked><span>Procedural spiral + halo</span><span class="lr-count" id="c-spiral">50k</span>
@@ -176,7 +176,7 @@
 
   <div id="scene-wrap">
     <canvas id="scene"></canvas>
-    <button class="sb-toggle" id="mobile-sb-toggle" aria-label="Toggle layers" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+    <button class="sb-toggle" id="mobile-sb-toggle" aria-label="Toggle layers" onclick="document.querySelector('.sidebar-left').classList.toggle('open')">&#9776;</button>
     <button id="reset-view" title="Reset view" aria-label="Reset view">&#8634;</button>
     <div id="hover-info"></div>
   </div>
