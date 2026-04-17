@@ -519,7 +519,7 @@
   // scales. Slower than the previous procedural-only drift.
   function tick() {
     requestAnimationFrame(tick);
-    galacticFrame.rotation.y += 0.00003;
+    galacticFrame.rotation.y += 0.000008;
     if (window.__galactic_tickHook) window.__galactic_tickHook();
     controls.update();
     renderer.render(scene, camera);
@@ -913,7 +913,57 @@
     mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
     var hits = raycaster.intersectObjects(pickableMeshes(), false);
-    if (hits.length) flyToObject(hits[0].object);
+    if (hits.length) {
+      var obj = hits[0].object;
+      flyToObject(obj);
+      // Open analysis panel with the object's data
+      if (obj.userData && window.RS && RS.showAnalysisPanel) {
+        var u = obj.userData;
+        var dist_ly = Math.round((u.dist_pc || 0) * PC_TO_LY);
+        RS.showAnalysisPanel({
+          name: u.name || 'Unknown',
+          type: (u.kind || 'object') + (dist_ly ? ' - ' + dist_ly.toLocaleString() + ' ly' : ''),
+          desc: u.note || '',
+          icon: u.kind === 'nebula' || u.kind === 'starforming' || u.kind === 'remnant' ? '\uD83C\uDF0C'
+              : u.kind === 'cluster' ? '\u2B50'
+              : u.kind === 'galaxy' ? '\uD83C\uDF0C'
+              : u.kind === 'star' || u.kind === 'exosystem' ? '\u2606'
+              : '\u2B50',
+          fields: [
+            { label: 'Distance', value: dist_ly ? dist_ly.toLocaleString() + ' light-years' : 'Unknown' },
+            { label: 'Type', value: u.kind || 'Unknown' },
+            { label: 'RA', value: u.ra ? u.ra.toFixed(4) + ' deg' : '' },
+            { label: 'Dec', value: u.dec ? u.dec.toFixed(4) + ' deg' : '' },
+          ].filter(function(f) { return f.value; }),
+        });
+      }
+    }
+    // Also check exoplanet points
+    if (!hits.length && exoPts && exoPts.visible && exoSystemsFiltered.length) {
+      raycaster.params.Points = { threshold: 4 };
+      var pHits = raycaster.intersectObject(exoPts, false);
+      if (pHits.length && window.RS && RS.showAnalysisPanel) {
+        var idx = pHits[0].index;
+        var s = exoSystemsFiltered[idx];
+        if (s) {
+          var dist_ly2 = Math.round(s[2] * PC_TO_LY);
+          var method = METHOD_NAMES[s[6]] || 'Other';
+          RS.showAnalysisPanel({
+            name: s[7],
+            type: 'Exoplanet system - ' + dist_ly2.toLocaleString() + ' ly',
+            desc: s[3] + ' confirmed planet' + (s[3] > 1 ? 's' : '') + '. Discovered ' + (s[4] || 'unknown') + ' via ' + method + '.',
+            icon: '\uD83C\uDF0D',
+            fields: [
+              { label: 'Distance', value: dist_ly2.toLocaleString() + ' light-years' },
+              { label: 'Planets', value: String(s[3]) },
+              { label: 'Method', value: method },
+              { label: 'Year', value: String(s[4] || '') },
+              { label: 'Max radius', value: s[5] ? s[5].toFixed(1) + ' R\u2295' : 'Unknown' },
+            ].filter(function(f) { return f.value; }),
+          });
+        }
+      }
+    }
   });
   // The fly animation is driven by a side effect hooked into the render
   // loop below via window-level callback (the tick() closure runs before
