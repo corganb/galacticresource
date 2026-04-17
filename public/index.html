@@ -412,7 +412,7 @@
         new THREE.BufferGeometry().setFromPoints(pts), mat
       ));
       // Distance label floating just above the plane at theta=0
-      var sp = makeSpriteLabel(kly + ' kly', '#6a8fff', 0.03);
+      var sp = makeSpriteLabel(kly + ' kly', '#6a8fff', 0.015);
       sp.position.set(r, 8, 0);
       group.add(sp);
     });
@@ -436,17 +436,17 @@
   // ═══ Sgr A* ═══ galactic center black hole
   (function sgrA() {
     var group = new THREE.Group();
-    var geo = new THREE.SphereGeometry(4, 32, 16);
+    var geo = new THREE.SphereGeometry(1.5, 24, 12);
     var mat = new THREE.MeshBasicMaterial({ color: 0xffddaa });
     group.add(new THREE.Mesh(geo, mat));
-    var ringGeo = new THREE.RingGeometry(6, 18, 64);
+    var ringGeo = new THREE.RingGeometry(2.5, 5, 48);
     var ringMat = new THREE.MeshBasicMaterial({ color: 0xffaa55, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
     var ring = new THREE.Mesh(ringGeo, ringMat);
     ring.rotation.x = Math.PI / 2;
     group.add(ring);
     // Label
-    var sgrLabel = makeSpriteLabel('Sgr A*', '#ffddaa', 0.14);
-    sgrLabel.position.set(0, 22, 0);
+    var sgrLabel = makeSpriteLabel('Sgr A*', '#ffddaa', 0.05);
+    sgrLabel.position.set(0, 8, 0);
     group.add(sgrLabel);
     galacticFrame.add(group);
     layers.sgra = group;
@@ -456,16 +456,16 @@
   (function solMarker() {
     var group = new THREE.Group();
     group.position.copy(SOL_POS);
-    var geo = new THREE.SphereGeometry(2, 16, 12);
+    var geo = new THREE.SphereGeometry(0.8, 12, 8);
     var mat = new THREE.MeshBasicMaterial({ color: 0xFFD54F });
     group.add(new THREE.Mesh(geo, mat));
-    var ringGeo = new THREE.RingGeometry(4, 7, 32);
+    var ringGeo = new THREE.RingGeometry(1.5, 2.5, 32);
     var ringMat = new THREE.MeshBasicMaterial({ color: 0xFFD54F, side: THREE.DoubleSide, transparent: true, opacity: 0.4 });
     var ring = new THREE.Mesh(ringGeo, ringMat);
     ring.rotation.x = Math.PI / 2;
     group.add(ring);
-    var solLabel = makeSpriteLabel('SOL - 26 kly from center', '#FFD54F', 0.1);
-    solLabel.position.set(0, 12, 0);
+    var solLabel = makeSpriteLabel('Sol', '#FFD54F', 0.04);
+    solLabel.position.set(0, 4, 0);
     group.add(solLabel);
     galacticFrame.add(group);
     layers.sol = group;
@@ -478,9 +478,9 @@
     var c = document.createElement('canvas');
     c.width = 512; c.height = 64;
     var ctx = c.getContext('2d');
-    ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.font = '500 20px -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.strokeStyle = 'rgba(0,0,0,0.95)'; ctx.lineWidth = 5;
+    ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 3;
     ctx.strokeText(text, 256, 32);
     ctx.fillStyle = colorHex || '#ffffff';
     ctx.fillText(text, 256, 32);
@@ -695,15 +695,15 @@
   // Each object gets a colored sphere marker with canvas label. Objects are
   // grouped into category groups so they can be toggled independently.
   var CATEGORY = {
-    nebula:      { group: 'nebulae',  color: 0xff5a6e, size: 3.0 },
-    remnant:     { group: 'nebulae',  color: 0xff8055, size: 3.0 },
-    starforming: { group: 'nebulae',  color: 0xff7fa0, size: 3.0 },
-    cluster:     { group: 'clusters', color: 0xa0ffcc, size: 2.6 },
-    galaxy:      { group: 'galaxies', color: 0xb58cff, size: 4.0 },
+    nebula:      { group: 'nebulae',  color: 0xff5a6e, size: 0.8 },
+    remnant:     { group: 'nebulae',  color: 0xff8055, size: 0.8 },
+    starforming: { group: 'nebulae',  color: 0xff7fa0, size: 0.8 },
+    cluster:     { group: 'clusters', color: 0xa0ffcc, size: 0.7 },
+    galaxy:      { group: 'galaxies', color: 0xb58cff, size: 1.0 },
     blackhole:   { group: 'sgra',     color: 0xffddaa, size: 0 }, // already added
     structure:   { group: 'arms',     color: 0xffffff, size: 0 },
-    star:        { group: 'nearstars',color: 0xffe066, size: 2.2 },
-    exosystem:   { group: 'nearstars',color: 0x80c0ff, size: 2.4 },
+    star:        { group: 'nearstars',color: 0xffe066, size: 0.5 },
+    exosystem:   { group: 'nearstars',color: 0x80c0ff, size: 0.6 },
   };
   fetch('data/galactic-objects.json').then(function(r) { return r.json(); }).then(function(data) {
     var groups = {
@@ -726,8 +726,8 @@
       mesh.userData = { name: o.name, kind: o.kind, note: o.note, dist_pc: o.dist_pc };
 
       var hexColor = '#' + spec.color.toString(16).padStart(6, '0');
-      var label = makeSpriteLabel(o.name, hexColor, 0.035);
-      label.position.set(0, spec.size + 3, 0);
+      var label = makeSpriteLabel(o.name, hexColor, 0.015);
+      label.position.set(0, spec.size + 1, 0);
       mesh.add(label);
 
       groups[spec.group].add(mesh);
@@ -758,7 +758,7 @@
       var th = a.theta_deg * Math.PI / 180;
       var x = r * Math.cos(th);
       var z = r * Math.sin(th);
-      var sp = makeSpriteLabel(a.name, '#9cc0ff', 0.06);
+      var sp = makeSpriteLabel(a.name, '#9cc0ff', 0.03);
       sp.position.set(x, 40, z);  // float above plane
       armsGroup.add(sp);
     });
