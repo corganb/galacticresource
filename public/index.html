@@ -172,6 +172,14 @@
     <label class="layer-row loading" data-layer="nearstars">
       <input type="checkbox" checked><span>Notable nearby stars</span><span class="lr-count" id="c-nst">load</span>
     </label>
+
+    <h3>Navigation</h3>
+    <div style="padding:4px 14px 12px;display:flex;flex-wrap:wrap;gap:4px">
+      <button class="nav-preset" data-pos="320,400,900" data-tgt="0,0,0" style="font-size:9.5px;padding:4px 8px;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(160,168,184,0.8);cursor:pointer">Full Galaxy</button>
+      <button class="nav-preset" data-pos="270,30,60" data-tgt="260,0,0" style="font-size:9.5px;padding:4px 8px;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(160,168,184,0.8);cursor:pointer">Solar Neighborhood</button>
+      <button class="nav-preset" data-pos="40,80,120" data-tgt="0,0,0" style="font-size:9.5px;padding:4px 8px;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(160,168,184,0.8);cursor:pointer">Galactic Core</button>
+      <button class="nav-preset" data-pos="800,600,2000" data-tgt="0,0,0" style="font-size:9.5px;padding:4px 8px;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:rgba(160,168,184,0.8);cursor:pointer">Local Group</button>
+    </div>
   </aside>
 
   <div id="scene-wrap">
@@ -692,18 +700,49 @@
   });
 
   // ═══ NOTABLE OBJECTS (nebulae, clusters, galaxies, nearby stars) ═══
-  // Each object gets a colored sphere marker with canvas label. Objects are
-  // grouped into category groups so they can be toggled independently.
+  // Each notable object is positioned from real astronomical data (RA, Dec,
+  // distance in parsecs from SIMBAD/NASA HEASARC). Rendered as flat crosshair
+  // sprites (fixed pixel size, always face camera) for a crisp scientific
+  // visualization that reads cleanly at any zoom level.
+
+  // Generate a crosshair/reticle sprite texture once and reuse for all markers.
+  // Each category gets its own color applied via SpriteMaterial.color.
+  var RETICLE_TEX = (function() {
+    var c = document.createElement('canvas');
+    c.width = 64; c.height = 64;
+    var ctx = c.getContext('2d');
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    // Crosshair: center dot + 4 lines
+    ctx.beginPath();
+    ctx.arc(32, 32, 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(32, 8); ctx.lineTo(32, 24);
+    ctx.moveTo(32, 40); ctx.lineTo(32, 56);
+    ctx.moveTo(8, 32); ctx.lineTo(24, 32);
+    ctx.moveTo(40, 32); ctx.lineTo(56, 32);
+    ctx.stroke();
+    // Thin circle
+    ctx.beginPath();
+    ctx.arc(32, 32, 18, 0, Math.PI * 2);
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+    var tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    return tex;
+  })();
+
   var CATEGORY = {
-    nebula:      { group: 'nebulae',  color: 0xff5a6e, size: 0.8 },
-    remnant:     { group: 'nebulae',  color: 0xff8055, size: 0.8 },
-    starforming: { group: 'nebulae',  color: 0xff7fa0, size: 0.8 },
-    cluster:     { group: 'clusters', color: 0xa0ffcc, size: 0.7 },
-    galaxy:      { group: 'galaxies', color: 0xb58cff, size: 1.0 },
-    blackhole:   { group: 'sgra',     color: 0xffddaa, size: 0 }, // already added
-    structure:   { group: 'arms',     color: 0xffffff, size: 0 },
-    star:        { group: 'nearstars',color: 0xffe066, size: 0.5 },
-    exosystem:   { group: 'nearstars',color: 0x80c0ff, size: 0.6 },
+    nebula:      { group: 'nebulae',  color: 0xff5a6e, pxSize: 14 },
+    remnant:     { group: 'nebulae',  color: 0xff8055, pxSize: 14 },
+    starforming: { group: 'nebulae',  color: 0xff7fa0, pxSize: 14 },
+    cluster:     { group: 'clusters', color: 0xa0ffcc, pxSize: 12 },
+    galaxy:      { group: 'galaxies', color: 0xb58cff, pxSize: 16 },
+    blackhole:   { group: 'sgra',     color: 0xffddaa, pxSize: 0 },
+    structure:   { group: 'arms',     color: 0xffffff, pxSize: 0 },
+    star:        { group: 'nearstars',color: 0xffe066, pxSize: 10 },
+    exosystem:   { group: 'nearstars',color: 0x80c0ff, pxSize: 10 },
   };
   fetch('data/galactic-objects.json').then(function(r) { return r.json(); }).then(function(data) {
     var groups = {
@@ -719,9 +758,13 @@
       if (!spec || !groups[spec.group]) return;
 
       var pos = icrsToScene(o.ra, o.dec, o.dist_pc);
-      var geo = new THREE.SphereGeometry(spec.size, 12, 8);
-      var mat = new THREE.MeshBasicMaterial({ color: spec.color });
-      var mesh = new THREE.Mesh(geo, mat);
+      // Crosshair sprite: fixed pixel size, always faces camera, crisp at any zoom
+      var spMat = new THREE.SpriteMaterial({
+        map: RETICLE_TEX, color: spec.color, transparent: true,
+        depthWrite: false, depthTest: false, sizeAttenuation: false,
+      });
+      var mesh = new THREE.Sprite(spMat);
+      mesh.scale.set(spec.pxSize, spec.pxSize, 1);
       mesh.position.copy(pos);
       mesh.userData = { name: o.name, kind: o.kind, note: o.note, dist_pc: o.dist_pc };
 
@@ -980,6 +1023,27 @@
 
   document.getElementById('star-count').textContent = STAR_COUNT.toLocaleString();
   document.getElementById('exo-count').textContent = '-';
+
+  // Navigation presets - smooth fly to predefined viewpoints
+  document.querySelectorAll('.nav-preset').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var p = btn.getAttribute('data-pos').split(',').map(Number);
+      var t = btn.getAttribute('data-tgt').split(',').map(Number);
+      var startPos = camera.position.clone();
+      var startTgt = controls.target.clone();
+      var endPos = new THREE.Vector3(p[0], p[1], p[2]);
+      var endTgt = new THREE.Vector3(t[0], t[1], t[2]);
+      var anim = { t: 0 };
+      function step() {
+        anim.t = Math.min(1, anim.t + 0.02);
+        var e = 0.5 - 0.5 * Math.cos(Math.PI * anim.t);
+        camera.position.lerpVectors(startPos, endPos, e);
+        controls.target.lerpVectors(startTgt, endTgt, e);
+        if (anim.t < 1) requestAnimationFrame(step);
+      }
+      step();
+    });
+  });
 
   // ═══ RESET VIEW BUTTON ═══
   // Captures the initial camera position/target and resets to it on click,
