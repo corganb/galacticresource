@@ -210,11 +210,10 @@
   var sceneWrap = document.getElementById('scene-wrap');
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0x020308);
-  scene.fog = new THREE.FogExp2(0x020308, 0.00025);
 
   var w = sceneWrap.clientWidth, h = sceneWrap.clientHeight;
-  var camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 60000);
-  camera.position.set(320, 400, 900);
+  var camera = new THREE.PerspectiveCamera(50, w / h, 1, 100000);
+  camera.position.set(200, 300, 600);
 
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
