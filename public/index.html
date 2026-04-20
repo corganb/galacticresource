@@ -132,7 +132,7 @@
 
     <h3>Real Catalogs</h3>
     <label class="layer-row loading" data-layer="bsc">
-      <input type="checkbox" checked><span>Yale Bright Stars</span><span class="lr-count" id="c-bsc">load</span>
+      <input type="checkbox"><span>Yale Bright Stars</span><span class="lr-count" id="c-bsc">load</span>
     </label>
     <label class="layer-row loading" data-layer="exo">
       <input type="checkbox" checked><span>NASA Exoplanet systems</span><span class="lr-count" id="c-exo">load</span>
@@ -318,17 +318,17 @@
     var roll = Math.random();
     var x, y, z, r, g, bl;
 
-    if (roll < 0.20) {
-      // Central bulge (20%): gaussian distribution near origin, thicker
+    if (roll < 0.25) {
+      // Central bulge (25%): gaussian distribution, slightly flattened
       var rr = Math.abs(gaussian()) * 120;
       var th = Math.random() * Math.PI * 2;
-      var ph = (Math.random() - 0.5) * 0.6;
+      var ph = (Math.random() - 0.5) * 0.5;
       x = rr * Math.cos(th);
-      y = rr * Math.sin(ph) * 100;
+      y = rr * Math.sin(ph) * 60;
       z = rr * Math.sin(th);
       r = 1.0; g = 0.88; bl = 0.65;
-    } else if (roll < 0.60) {
-      // Spiral arms (40%): logarithmic spiral with MORE vertical scatter
+    } else if (roll < 0.93) {
+      // Spiral arms + thick disk (68%): the vast majority of stars
       var arm = Math.floor(Math.random() * ARM_COUNT);
       var theta = Math.random() * 6;
       var rBase = logSpiralR(theta, 60, 0.28);
@@ -336,19 +336,21 @@
       var armAngle = theta + arm * ARM_OFFSET + (Math.random() - 0.5) * 0.35;
       x = (rBase + jitter) * Math.cos(armAngle);
       z = (rBase + jitter) * Math.sin(armAngle);
-      y = (Math.random() - 0.5) * Math.max(30, rBase * 0.12);
+      // Thick disk: vertical scatter proportional to radius
+      y = (Math.random() - 0.5) * Math.max(15, rBase * 0.06);
       var t = Math.min(1, rBase / 1200);
       r = 1.0 - t * 0.4;
       g = 0.9 - t * 0.1;
       bl = 0.7 + t * 0.3;
     } else {
-      // Halo / field stars (40%): MUCH denser spherical distribution
-      // so there are visible stars in every viewing direction
-      var rh = 50 + Math.random() * 1600;
+      // Stellar halo (~7%): sparse, scientifically accurate fraction.
+      // Real Milky Way halo contains ~1% of stars but we use 7% for
+      // visibility. Spherical distribution, slightly flattened.
+      var rh = 100 + Math.random() * 1200;
       var thh = Math.random() * Math.PI * 2;
       var phh = Math.acos(2 * Math.random() - 1);
       x = rh * Math.sin(phh) * Math.cos(thh);
-      y = rh * Math.cos(phh) * 0.6;
+      y = rh * Math.cos(phh) * 0.5;
       z = rh * Math.sin(phh) * Math.sin(thh);
       r = 0.8; g = 0.85; bl = 1.0;
     }
@@ -598,6 +600,7 @@
       depthWrite: false, depthTest: false, alphaTest: 0.01,
     });
     var pts = new THREE.Points(geo, mat);
+    pts.visible = false;  // hidden by default at galactic scale
     galacticFrame.add(pts);
     layers.bsc = pts;
     setCount('c-bsc', stars.length);
