@@ -373,6 +373,7 @@
     opacity: 0.75,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
+    depthTest: false,
   });
   var galaxy = new THREE.Points(galaxyGeo, galaxyMat);
   galacticFrame.add(galaxy);
@@ -442,10 +443,10 @@
   (function sgrA() {
     var group = new THREE.Group();
     var geo = new THREE.SphereGeometry(1.5, 24, 12);
-    var mat = new THREE.MeshBasicMaterial({ color: 0xffddaa });
+    var mat = new THREE.MeshBasicMaterial({ color: 0xffddaa, depthWrite: false, depthTest: false });
     group.add(new THREE.Mesh(geo, mat));
     var ringGeo = new THREE.RingGeometry(2.5, 5, 48);
-    var ringMat = new THREE.MeshBasicMaterial({ color: 0xffaa55, side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+    var ringMat = new THREE.MeshBasicMaterial({ color: 0xffaa55, side: THREE.DoubleSide, transparent: true, opacity: 0.35, depthWrite: false, depthTest: false });
     var ring = new THREE.Mesh(ringGeo, ringMat);
     ring.rotation.x = Math.PI / 2;
     group.add(ring);
@@ -462,10 +463,10 @@
     var group = new THREE.Group();
     group.position.copy(SOL_POS);
     var geo = new THREE.SphereGeometry(0.8, 12, 8);
-    var mat = new THREE.MeshBasicMaterial({ color: 0xFFD54F });
+    var mat = new THREE.MeshBasicMaterial({ color: 0xFFD54F, depthWrite: false, depthTest: false });
     group.add(new THREE.Mesh(geo, mat));
     var ringGeo = new THREE.RingGeometry(1.5, 2.5, 32);
-    var ringMat = new THREE.MeshBasicMaterial({ color: 0xFFD54F, side: THREE.DoubleSide, transparent: true, opacity: 0.4 });
+    var ringMat = new THREE.MeshBasicMaterial({ color: 0xFFD54F, side: THREE.DoubleSide, transparent: true, opacity: 0.4, depthWrite: false, depthTest: false });
     var ring = new THREE.Mesh(ringGeo, ringMat);
     ring.rotation.x = Math.PI / 2;
     group.add(ring);
@@ -566,7 +567,7 @@
     var mat = new THREE.PointsMaterial({
       size: 2.6, sizeAttenuation: false, vertexColors: true,
       transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending,
-      depthWrite: false, alphaTest: 0.01,
+      depthWrite: false, depthTest: false, alphaTest: 0.01,
     });
     var pts = new THREE.Points(geo, mat);
     galacticFrame.add(pts);
