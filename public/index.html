@@ -366,8 +366,7 @@
   galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
   var galaxyMat = new THREE.PointsMaterial({
-    map: STAR_TEXTURE,
-    size: 1.8,
+    size: 1.5,
     sizeAttenuation: false,
     vertexColors: true,
     transparent: true,
@@ -565,7 +564,6 @@
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
     var mat = new THREE.PointsMaterial({
-      map: STAR_TEXTURE,
       size: 2.6, sizeAttenuation: false, vertexColors: true,
       transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending,
       depthWrite: false, alphaTest: 0.01,
@@ -682,7 +680,6 @@
     exoSystemsAll = payload.systems;
     exoGeo = new THREE.BufferGeometry();
     var mat = new THREE.PointsMaterial({
-      map: STAR_TEXTURE,
       size: 3.2, sizeAttenuation: false, vertexColors: true,
       transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending,
       depthWrite: false, alphaTest: 0.01,
