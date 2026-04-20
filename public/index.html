@@ -215,8 +215,8 @@
   scene.background = new THREE.Color(0x000000);
 
   var w = sceneWrap.clientWidth, h = sceneWrap.clientHeight;
-  var camera = new THREE.PerspectiveCamera(60, w / h, 1, 100000);
-  camera.position.set(0, 200, 500);
+  var camera = new THREE.PerspectiveCamera(70, w / h, 1, 100000);
+  camera.position.set(0, 100, 280);
 
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -388,7 +388,7 @@
 
   var galaxyMat = new THREE.PointsMaterial({
     map: DOT_TEX,
-    size: 2.5,
+    size: 3.0,
     sizeAttenuation: false,
     vertexColors: true,
     transparent: true,
