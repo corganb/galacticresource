@@ -223,8 +223,8 @@
   })();
 
   var w = sceneWrap.clientWidth, h = sceneWrap.clientHeight;
-  var camera = new THREE.PerspectiveCamera(50, w / h, 1, 100000);
-  camera.position.set(0, 700, 150);
+  var camera = new THREE.PerspectiveCamera(60, w / h, 1, 100000);
+  camera.position.set(0, 500, 1);
 
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -377,7 +377,23 @@
   galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
+  // Round dot texture: simple filled white circle on transparent canvas.
+  // Applied to all point layers so stars render as circles not squares.
+  var DOT_TEX = (function() {
+    var c = document.createElement('canvas');
+    c.width = 32; c.height = 32;
+    var ctx = c.getContext('2d');
+    ctx.beginPath();
+    ctx.arc(16, 16, 14, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    var t = new THREE.CanvasTexture(c);
+    t.minFilter = THREE.LinearFilter;
+    return t;
+  })();
+
   var galaxyMat = new THREE.PointsMaterial({
+    map: DOT_TEX,
     size: 2.5,
     sizeAttenuation: false,
     vertexColors: true,
