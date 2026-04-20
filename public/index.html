@@ -523,12 +523,15 @@
     return sp;
   }
 
-  // Controls
+  // Controls - smooth rotation without snapping
   var controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.08;
-  controls.minDistance = 20;
-  controls.maxDistance = 4000;
+  controls.dampingFactor = 0.12;
+  controls.rotateSpeed = 0.5;
+  controls.minDistance = 100;
+  controls.maxDistance = 2000;
+  controls.minPolarAngle = 0.1;       // prevent flipping at poles
+  controls.maxPolarAngle = Math.PI - 0.1;
 
   // Resize tracks the scene wrap, not the window, because the sidebar takes
   // fixed width on desktop and collapses on mobile.
@@ -589,8 +592,7 @@
     var mat = new THREE.PointsMaterial({
       size: 2.6, sizeAttenuation: false, vertexColors: true,
       transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending,
-      depthWrite: false, depthTest: false, alphaTest: 0.01,
-    });
+      depthWrite: false, depthTest: false,    });
     var pts = new THREE.Points(geo, mat);
     pts.visible = false;  // hidden by default at galactic scale
     galacticFrame.add(pts);
@@ -706,8 +708,7 @@
     var mat = new THREE.PointsMaterial({
       size: 3.2, sizeAttenuation: false, vertexColors: true,
       transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending,
-      depthWrite: false, alphaTest: 0.01,
-    });
+      depthWrite: false,    });
     exoPts = new THREE.Points(exoGeo, mat);
     galacticFrame.add(exoPts);
     layers.exo = exoPts;
