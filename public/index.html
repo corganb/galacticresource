@@ -210,6 +210,17 @@
   var sceneWrap = document.getElementById('scene-wrap');
   var scene = new THREE.Scene();
   scene.background = new THREE.Color(0x000000);
+  // NASA star skybox fills every direction with real stars so there
+  // are no black voids when looking away from the galactic disk.
+  (function loadSkybox() {
+    var loader = new THREE.CubeTextureLoader();
+    var base = 'https://terraresource.net/assets/';
+    loader.load([
+      base + 'skybox_positiveX.jpg', base + 'skybox_negativeX.jpg',
+      base + 'skybox_positiveY.jpg', base + 'skybox_negativeY.jpg',
+      base + 'skybox_positiveZ.jpg', base + 'skybox_negativeZ.jpg',
+    ], function(tex) { scene.background = tex; });
+  })();
 
   var w = sceneWrap.clientWidth, h = sceneWrap.clientHeight;
   var camera = new THREE.PerspectiveCamera(50, w / h, 1, 100000);
