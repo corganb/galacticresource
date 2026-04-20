@@ -297,7 +297,7 @@
   // the background plate - the real catalogs load on top. Reduced from
   // 50k to 18k points so the scene reads cleaner and the real catalogs
   // (BSC, exoplanets) stand out more clearly.
-  var STAR_COUNT = 35000;
+  var STAR_COUNT = 80000;
   var positions = new Float32Array(STAR_COUNT * 3);
   var colors = new Float32Array(STAR_COUNT * 3);
   var sizes = new Float32Array(STAR_COUNT);
@@ -378,11 +378,11 @@
   galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
   var galaxyMat = new THREE.PointsMaterial({
-    size: 1.5,
+    size: 2.5,
     sizeAttenuation: false,
     vertexColors: true,
     transparent: true,
-    opacity: 0.75,
+    opacity: 0.8,
     blending: THREE.AdditiveBlending,
     depthWrite: false,
     depthTest: false,
