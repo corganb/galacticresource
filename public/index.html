@@ -135,7 +135,7 @@
       <input type="checkbox"><span>Yale Bright Stars</span><span class="lr-count" id="c-bsc">load</span>
     </label>
     <label class="layer-row loading" data-layer="exo">
-      <input type="checkbox" checked><span>NASA Exoplanet systems</span><span class="lr-count" id="c-exo">load</span>
+      <input type="checkbox"><span>NASA Exoplanet systems</span><span class="lr-count" id="c-exo">load</span>
     </label>
     <div class="filter-box" id="exo-filters">
       <div class="fr">
@@ -161,16 +161,16 @@
 
     <h3>Notable Objects</h3>
     <label class="layer-row loading" data-layer="nebulae">
-      <input type="checkbox" checked><span>Nebulae &amp; SN remnants</span><span class="lr-count" id="c-neb">load</span>
+      <input type="checkbox"><span>Nebulae &amp; SN remnants</span><span class="lr-count" id="c-neb">load</span>
     </label>
     <label class="layer-row loading" data-layer="clusters">
-      <input type="checkbox" checked><span>Star clusters</span><span class="lr-count" id="c-clu">load</span>
+      <input type="checkbox"><span>Star clusters</span><span class="lr-count" id="c-clu">load</span>
     </label>
     <label class="layer-row loading" data-layer="galaxies">
-      <input type="checkbox" checked><span>Local Group galaxies</span><span class="lr-count" id="c-gal">load</span>
+      <input type="checkbox"><span>Local Group galaxies</span><span class="lr-count" id="c-gal">load</span>
     </label>
     <label class="layer-row loading" data-layer="nearstars">
-      <input type="checkbox" checked><span>Notable nearby stars</span><span class="lr-count" id="c-nst">load</span>
+      <input type="checkbox"><span>Notable nearby stars</span><span class="lr-count" id="c-nst">load</span>
     </label>
 
     <h3>Navigation</h3>
@@ -710,6 +710,7 @@
       transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending,
       depthWrite: false,    });
     exoPts = new THREE.Points(exoGeo, mat);
+    exoPts.visible = false;  // hidden by default at galactic scale
     galacticFrame.add(exoPts);
     layers.exo = exoPts;
     rebuildExoBuffers();
