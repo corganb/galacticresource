@@ -118,13 +118,13 @@
       <input type="checkbox" checked><span>Procedural spiral + halo</span><span class="lr-count" id="c-spiral">50k</span>
     </label>
     <label class="layer-row" data-layer="arms">
-      <input type="checkbox" checked><span>Spiral arm labels</span><span class="lr-count" id="c-arms">6</span>
+      <input type="checkbox"><span>Spiral arm labels</span><span class="lr-count" id="c-arms">6</span>
     </label>
     <label class="layer-row" data-layer="sgra">
-      <input type="checkbox" checked><span>Sgr A* (galactic center)</span><span class="lr-count">1</span>
+      <input type="checkbox"><span>Sgr A* (galactic center)</span><span class="lr-count">1</span>
     </label>
     <label class="layer-row" data-layer="sol">
-      <input type="checkbox" checked><span>Sol / Solar System</span><span class="lr-count">1</span>
+      <input type="checkbox"><span>Sol / Solar System</span><span class="lr-count">1</span>
     </label>
     <label class="layer-row" data-layer="grid">
       <input type="checkbox"><span>Distance grid (kly)</span><span class="lr-count">5</span>
@@ -514,8 +514,10 @@
     ctx.fillText(text, 256, 32);
     var tex = new THREE.CanvasTexture(c);
     tex.minFilter = THREE.LinearFilter;
+    tex.premultiplyAlpha = false;  // prevent canvas transparent areas rendering as black
     var sp = new THREE.Sprite(new THREE.SpriteMaterial({
       map: tex, transparent: true, depthWrite: false, depthTest: false,
+      blending: THREE.AdditiveBlending,  // additive so transparent areas add nothing
     }));
     var s = scale || 0.05;
     sp.scale.set(s * 512, s * 64, 1);  // proportional to canvas aspect
