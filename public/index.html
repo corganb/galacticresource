@@ -454,6 +454,7 @@
   function tick() {
     requestAnimationFrame(tick);
     galaxy.rotation.y += 0.000008;
+    updateArmLabels();
     controls.update();
     renderer.render(scene, camera);
   }
@@ -476,6 +477,51 @@
       if (obj) obj.visible = cb.checked;
     });
   });
+
+  // ═══ SPIRAL ARM LABELS ═══
+  // HTML div overlays positioned by projecting 3D coords to screen space
+  // each frame. No canvas textures - pure DOM elements. Hidden by default.
+  var armLabels = [];
+  var armData = [
+    { name: 'Perseus Arm', r: 250, th: 240 },
+    { name: 'Scutum-Centaurus', r: 160, th: 60 },
+    { name: 'Sagittarius Arm', r: 220, th: 180 },
+    { name: 'Norma Arm', r: 140, th: 300 },
+    { name: 'Outer Arm', r: 420, th: 120 },
+    { name: 'Orion Spur (Sol)', r: 260, th: 330 },
+  ];
+  var armContainer = document.createElement('div');
+  armContainer.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:10';
+  armContainer.id = 'arm-labels';
+  sceneWrap.appendChild(armContainer);
+  armData.forEach(function(a) {
+    var thRad = a.th * Math.PI / 180;
+    var pos3d = new THREE.Vector3(a.r * Math.cos(thRad), 20, a.r * Math.sin(thRad));
+    var div = document.createElement('div');
+    div.style.cssText = 'position:absolute;font-size:10px;color:rgba(160,184,255,0.7);letter-spacing:0.08em;text-transform:uppercase;font-family:-apple-system,sans-serif;white-space:nowrap;transform:translate(-50%,-50%)';
+    div.textContent = a.name;
+    armContainer.appendChild(div);
+    armLabels.push({ el: div, pos: pos3d });
+  });
+  armContainer.style.display = 'none';
+  layers.arms = { visible: false };
+  Object.defineProperty(layers.arms, 'visible', {
+    set: function(v) { this._v = v; armContainer.style.display = v ? 'block' : 'none'; },
+    get: function() { return !!this._v; }
+  });
+
+  // Update arm label positions each frame
+  function updateArmLabels() {
+    if (armContainer.style.display === 'none') return;
+    var rect = canvas.getBoundingClientRect();
+    armLabels.forEach(function(a) {
+      var projected = a.pos.clone().project(camera);
+      if (projected.z > 1) { a.el.style.display = 'none'; return; }
+      a.el.style.display = '';
+      a.el.style.left = ((projected.x * 0.5 + 0.5) * rect.width) + 'px';
+      a.el.style.top = ((-projected.y * 0.5 + 0.5) * rect.height) + 'px';
+    });
+  }
 
   // ═══ DISTANCE GRID (kly rings) ═══
   (function grid() {
