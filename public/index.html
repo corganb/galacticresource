@@ -477,6 +477,73 @@
     });
   });
 
+  // ═══ CLICK TO INSPECT ═══
+  var raycaster = new THREE.Raycaster();
+  var mouse = new THREE.Vector2();
+  var METHOD_NAMES = { 1:'Transit', 2:'Radial velocity', 3:'Direct imaging', 4:'Microlensing' };
+  function pickableObjects() {
+    var list = [];
+    ['nebulae','clusters','galaxies','nearstars'].forEach(function(k) {
+      var g = layers[k];
+      if (g && g.visible) g.children.forEach(function(m) { if (m.userData && m.userData.name) list.push(m); });
+    });
+    return list;
+  }
+  canvas.addEventListener('click', function(ev) {
+    if (!window.RS || !RS.showAnalysisPanel) return;
+    var rect = canvas.getBoundingClientRect();
+    mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    // Check notable objects
+    var hits = raycaster.intersectObjects(pickableObjects(), false);
+    if (hits.length) {
+      var u = hits[0].object.userData;
+      var dist_ly = Math.round((u.dist_pc || 0) * PC_TO_LY);
+      RS.showAnalysisPanel({
+        name: u.name, type: (u.kind || 'object') + (dist_ly ? ' - ' + dist_ly.toLocaleString() + ' ly' : ''),
+        desc: u.note || '', icon: '\u2B50',
+        fields: [{ label:'Distance', value: dist_ly ? dist_ly.toLocaleString()+' ly' : 'Unknown' }, { label:'Type', value: u.kind||'Unknown' }].filter(function(f){return f.value;})
+      });
+      return;
+    }
+    // Check exoplanet points
+    if (exoPts && exoPts.visible && exoSystemsFiltered.length) {
+      raycaster.params.Points = { threshold: 4 };
+      var pH = raycaster.intersectObject(exoPts, false);
+      if (pH.length) {
+        var s = exoSystemsFiltered[pH[0].index];
+        if (s) {
+          var d2 = Math.round(s[2] * PC_TO_LY), meth = METHOD_NAMES[s[6]] || 'Other';
+          RS.showAnalysisPanel({
+            name: s[7], type: 'Exoplanet system - ' + d2.toLocaleString() + ' ly',
+            desc: s[3] + ' planet' + (s[3]>1?'s':'') + '. ' + meth + (s[4] ? ' (' + s[4] + ')' : '') + '.', icon: '\uD83C\uDF0D',
+            fields: [{label:'Distance',value:d2.toLocaleString()+' ly'},{label:'Planets',value:''+s[3]},{label:'Method',value:meth},{label:'Year',value:''+s[4]}].filter(function(f){return f.value;})
+          });
+        }
+      }
+    }
+  });
+
+  // ═══ HOVER INFO ═══
+  var hoverInfo = document.getElementById('hover-info');
+  canvas.addEventListener('pointermove', function(ev) {
+    var rect = canvas.getBoundingClientRect();
+    mouse.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    var hits = raycaster.intersectObjects(pickableObjects(), false);
+    if (hits.length && hoverInfo) {
+      var u = hits[0].object.userData;
+      var dl = Math.round((u.dist_pc||0)*PC_TO_LY);
+      hoverInfo.innerHTML = '<div class="hi-name">'+u.name+'</div><div class="hi-kind">'+(u.kind||'')+' - '+dl.toLocaleString()+' ly</div>';
+      hoverInfo.style.display = 'block';
+      hoverInfo.style.left = (ev.clientX - rect.left + 14) + 'px';
+      hoverInfo.style.top = (ev.clientY - rect.top + 14) + 'px';
+    } else if (hoverInfo) { hoverInfo.style.display = 'none'; }
+  });
+  canvas.addEventListener('pointerleave', function() { if (hoverInfo) hoverInfo.style.display = 'none'; });
+
   // ═══ NAVIGATION PRESETS ═══
   document.querySelectorAll('.nav-preset').forEach(function(btn) {
     btn.addEventListener('click', function() {
