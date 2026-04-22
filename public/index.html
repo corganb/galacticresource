@@ -477,6 +477,31 @@
     });
   });
 
+  // ═══ DISTANCE GRID (kly rings) ═══
+  (function grid() {
+    var group = new THREE.Group();
+    [10, 20, 30, 40, 50].forEach(function(kly) {
+      var r = kly * 10;
+      var pts = [];
+      for (var k = 0; k <= 128; k++) {
+        var th = (k / 128) * Math.PI * 2;
+        pts.push(new THREE.Vector3(r * Math.cos(th), 0, r * Math.sin(th)));
+      }
+      group.add(new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({ color: 0x3a6099, transparent: true, opacity: 0.3 })
+      ));
+    });
+    // Sol vector line from GC to Sol
+    group.add(new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), SOL_POS.clone()]),
+      new THREE.LineBasicMaterial({ color: 0xFFD54F, transparent: true, opacity: 0.4 })
+    ));
+    group.visible = false;
+    scene.add(group);
+    layers.grid = group;
+  })();
+
   // ═══ CLICK TO INSPECT ═══
   var raycaster = new THREE.Raycaster();
   var mouse = new THREE.Vector2();
