@@ -448,6 +448,42 @@
     document.getElementById('star-count').textContent = (STAR_COUNT+stars.length).toLocaleString()+' ('+stars.length.toLocaleString()+' real)';
   }).catch(function(e) { console.warn('BSC failed',e); removeLoading('bsc'); });
 
+  // ═══ IAU CONSTELLATIONS (Stellarium/IAU line figures projected onto celestial sphere) ═══
+  // Input is GeoJSON with MultiLineString geometries in (RA_deg, Dec_deg) coordinates.
+  // Projected to the same R=900 sphere as Yale BSC so stars and constellation lines align.
+  fetch('data/constellations.lines.json').then(function(r){return r.json();}).then(function(geo) {
+    var R = 900;
+    var group = new THREE.Group();
+    var segCount = 0;
+    (geo.features||[]).forEach(function(feat) {
+      var coords = feat.geometry && feat.geometry.coordinates;
+      if (!coords) return;
+      coords.forEach(function(lineStr) {
+        var pts = [];
+        lineStr.forEach(function(p) {
+          var ra = p[0] * Math.PI / 180;
+          var dec = p[1] * Math.PI / 180;
+          pts.push(new THREE.Vector3(
+            SOL_POS.x + R * Math.cos(dec) * Math.cos(ra),
+            SOL_POS.y + R * Math.sin(dec),
+            SOL_POS.z + R * Math.cos(dec) * Math.sin(ra)
+          ));
+        });
+        if (pts.length < 2) return;
+        group.add(new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints(pts),
+          new THREE.LineBasicMaterial({ color: 0x5a78a8, transparent: true, opacity: 0.45 })
+        ));
+        segCount++;
+      });
+    });
+    group.visible = false;
+    scene.add(group);
+    layers.constellations = group;
+    setCount('c-con', (geo.features||[]).length);
+    removeLoading('constellations');
+  }).catch(function(e) { console.warn('constellations load failed', e); removeLoading('constellations'); });
+
   // Exo filter wiring
   var yearEl=document.getElementById('f-year'), yearValEl=document.getElementById('f-year-v');
   if(yearEl) yearEl.addEventListener('input',function(){ exoFilter.yearMax=parseInt(yearEl.value,10); yearValEl.textContent=yearEl.value; rebuildExoBuffers(); });
