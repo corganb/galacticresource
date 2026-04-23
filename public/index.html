@@ -153,9 +153,6 @@
     </label>
 
     <h3>Real Catalogs</h3>
-    <div style="padding:4px 14px 10px;font-size:9.5px;color:var(--t4);line-height:1.4">
-      Both catalogs cluster near Sol because they reflect what Earth can observe from within the Milky Way, not the actual stellar distribution. BSC is magnitude-limited; exoplanets need telescopic resolution.
-    </div>
     <label class="layer-row loading" data-layer="bsc">
       <input type="checkbox"><span>Yale Bright Stars</span><span class="lr-count" id="c-bsc">load</span>
     </label>
@@ -247,20 +244,15 @@
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(w, h);
 
-  // ═══ PROCEDURAL MILKY WAY (NASA artist-impression style) ═══
-  // Scale: LY_PER_SCENE=100, so 500 scene units = 50,000 ly = real Milky Way disk radius.
-  // Architecture:
-  //   - Barred bulge (elongated along x axis) - matches Milky Way's central bar
-  //   - 4 arms: 2 major (Scutum-Centaurus, Perseus) + 2 minor (Sagittarius, Norma)
-  //     weighted 0.35 / 0.35 / 0.15 / 0.15 so the bright arms dominate visually
-  //   - HII star-forming regions: sparse pink/red dots along arms (iconic Milky Way feature)
-  //   - Halo of cool blue field stars extending well beyond the disk
-  //   - Color gradient: warm yellow bulge -> white-blue disk -> cool blue halo
+  // ═══ PROCEDURAL MILKY WAY ═══
+  // 80k points: 25% bulge, 68% disk/arms, 7% halo.
+  // NO texture map. Plain PointsMaterial with vertexColors only.
   //
-  // Constraints:
-  //   - NO canvas textures. Pure THREE.Points with vertex colors (hard rule).
-  //   - Seeded PRNG so geometry is deterministic across reloads.
-  var STAR_COUNT = 140000;
+  // Seeded PRNG (mulberry32) replaces Math.random here so the spiral-arm geometry is
+  // deterministic across reloads. For a scientific intelligence platform, users expect
+  // the same galactic view every time - Sol should always sit in the same position
+  // relative to the same visible arm, not roll the dice each page load.
+  var STAR_COUNT = 80000;
   var pos = new Float32Array(STAR_COUNT * 3);
   var col = new Float32Array(STAR_COUNT * 3);
   var ARM_COUNT = 4;
@@ -284,60 +276,36 @@
   for (var i = 0; i < STAR_COUNT; i++) {
     var roll = srand();
     var x, y, z, r, g, bl;
-    if (roll < 0.22) {
-      // BARRED BULGE: elongated Gaussian, 1.4x wider along x than z.
-      // Warm yellow-orange tone (older/redder stars, characteristic of bulge populations).
-      var rr = Math.abs(gaussian()) * 170;
+    if (roll < 0.25) {
+      // Central bulge: Gaussian density around origin. Scale bumped to match larger disk.
+      var rr = Math.abs(gaussian()) * 160;
       var th = srand() * Math.PI * 2;
-      x = rr * Math.cos(th) * 1.4;
-      z = rr * Math.sin(th) * 0.75;
-      y = (srand() - 0.5) * 70;
-      var bulgeT = Math.min(1, rr / 200);
-      r = 1.0; g = 0.82 + bulgeT * 0.06; bl = 0.50 + bulgeT * 0.15;
-    } else if (roll < 0.87) {
-      // SPIRAL ARMS (65% of stars).
-      // Weighted arm selection: arms 0 and 2 dominate (Scutum-Centaurus, Perseus style),
-      // arms 1 and 3 are secondary (Sagittarius, Norma).
-      var armRoll = srand();
-      var arm;
-      if (armRoll < 0.35) arm = 0;
-      else if (armRoll < 0.70) arm = 2;
-      else if (armRoll < 0.85) arm = 1;
-      else arm = 3;
-      var theta = srand() * 6.2;
+      x = rr * Math.cos(th);
+      z = rr * Math.sin(th);
+      y = (srand() - 0.5) * 80;
+      r = 1.0; g = 0.88; bl = 0.65;
+    } else if (roll < 0.93) {
+      // Scale: LY_PER_SCENE=100, so 500 scene units = 50,000 ly = real Milky Way disk radius.
+      // Arms extend from ~100 to ~540 scene units, putting Sol (at scene unit 260) at ~48% of visible radius,
+      // matching the real-sky view where Sol sits about halfway out.
+      var arm = Math.floor(srand() * ARM_COUNT);
+      var theta = srand() * 6;
       var rBase = logSpiral(theta, 100, 0.28);
-      // Tighter jitter (0.12 vs 0.25) creates more defined arms with clearer inter-arm gaps.
-      var jitter = (srand() - 0.5) * Math.max(30, rBase * 0.12);
-      var armAngle = theta + arm * ARM_OFFSET + (srand() - 0.5) * 0.22;
+      var jitter = (srand() - 0.5) * Math.max(50, rBase * 0.25);
+      var armAngle = theta + arm * ARM_OFFSET + (srand() - 0.5) * 0.35;
       x = (rBase + jitter) * Math.cos(armAngle);
       z = (rBase + jitter) * Math.sin(armAngle);
-      y = (srand() - 0.5) * Math.max(18, rBase * 0.05);
-      // Inner arms: white-yellow (hotter, younger stars toward center).
-      // Outer arms: blue-tinged (OB associations in star-forming regions).
-      var t = Math.min(1, rBase / 600);
-      r = 1.0 - t * 0.35; g = 0.95 - t * 0.15; bl = 0.75 + t * 0.22;
-    } else if (roll < 0.92) {
-      // HII REGIONS (5%): pink/red nebular emission along arms.
-      // Same arm positioning logic as spirals but biased toward outer disk
-      // where active star formation happens, and colored pink-red.
-      var arm2 = Math.floor(srand() * ARM_COUNT);
-      var theta2 = 1.5 + srand() * 4.7;
-      var rBase2 = logSpiral(theta2, 100, 0.28);
-      var armAngle2 = theta2 + arm2 * ARM_OFFSET + (srand() - 0.5) * 0.15;
-      var jitter2 = (srand() - 0.5) * Math.max(20, rBase2 * 0.08);
-      x = (rBase2 + jitter2) * Math.cos(armAngle2);
-      z = (rBase2 + jitter2) * Math.sin(armAngle2);
-      y = (srand() - 0.5) * 10;
-      r = 1.0; g = 0.55 - srand() * 0.2; bl = 0.60 + srand() * 0.15;
+      y = (srand() - 0.5) * Math.max(25, rBase * 0.06);
+      var t = Math.min(1, rBase / 1200);
+      r = 1.0 - t * 0.4; g = 0.9 - t * 0.1; bl = 0.7 + t * 0.3;
     } else {
-      // HALO (8%): cool blue-white field stars extending to 1300 scene units.
-      var rh = 120 + srand() * 1200;
+      var rh = 100 + srand() * 1200;
       var thh = srand() * Math.PI * 2;
       var phh = Math.acos(2 * srand() - 1);
       x = rh * Math.sin(phh) * Math.cos(thh);
       y = rh * Math.cos(phh) * 0.5;
       z = rh * Math.sin(phh) * Math.sin(thh);
-      r = 0.70; g = 0.78; bl = 1.0;
+      r = 0.8; g = 0.85; bl = 1.0;
     }
     pos[i*3] = x; pos[i*3+1] = y; pos[i*3+2] = z;
     col[i*3] = r; col[i*3+1] = g; col[i*3+2] = bl;
@@ -347,30 +315,14 @@
   galaxyGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   galaxyGeo.setAttribute('color', new THREE.BufferAttribute(col, 3));
 
-  // Two overlapping point layers produce a subtle glow without canvas sprites:
-  // a sharp 1.0px core star, plus a softer 2.5px additive haze around it.
   var galaxy = new THREE.Points(galaxyGeo, new THREE.PointsMaterial({
-    size: 1.1, sizeAttenuation: false, vertexColors: true,
-    transparent: true, opacity: 1.0
+    size: 1.2, sizeAttenuation: false, vertexColors: true,
+    transparent: true, opacity: 0.9
   }));
   scene.add(galaxy);
 
-  // Haze layer: same buffer, bigger softer points, additive blending for a diffuse glow.
-  var hazeMat = new THREE.PointsMaterial({
-    size: 3.0, sizeAttenuation: false, vertexColors: true,
-    transparent: true, opacity: 0.18, blending: THREE.AdditiveBlending, depthWrite: false
-  });
-  var haze = new THREE.Points(galaxyGeo, hazeMat);
-  scene.add(haze);
-
-  // Spiral toggle bundles both the sharp stars and the additive haze layer.
-  // Using an Object3D wrapper wouldn't work because we added them to scene directly;
-  // instead expose a proxy with a .visible setter/getter that flips both.
-  var spiralProxy = {
-    get visible() { return galaxy.visible; },
-    set visible(v) { galaxy.visible = v; haze.visible = v; }
-  };
-  var layers = { spiral: spiralProxy };
+  // Layer registry
+  var layers = { spiral: galaxy };
 
   // ═══ SOL MARKER ═══
   // Pixel-sized point at 26 kly from center (260 scene units on +X).
