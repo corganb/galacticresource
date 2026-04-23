@@ -3,7 +3,7 @@
 ## Site
 - URL: https://galacticresource.com (note: `.com`, not `.net`)
 - Repo: https://github.com/corganb/galacticresource
-- Host: Cloudflare Pages (auto-deploys from `main`)
+- Host: Cloudflare Pages (manual deploy - Pages project is NOT git-connected)
 - Supabase project: `pxocavaczfjcpvqeiznt` (shared across all sibling sites)
 - Engine: Three.js (WebGL, single-page), procedural 80k-point Milky Way
 
@@ -48,7 +48,11 @@
 - Free: 3 active layers max. Researcher+: unlimited.
 
 ## Deploy
-Cloudflare Pages auto-deploys on push to `main`.
+Pages project is NOT git-connected; push to main does NOT auto-deploy. Run:
+```
+wrangler pages deploy public --project-name=galacticresource-site --branch=main
+```
+Or run `~/Documents/resource-systems-workspace/scripts/deploy_sites.sh` to deploy all 10 siblings in one pass.
 
 ## Commit style
 - Format: `type: short description` (e.g. `feat:`, `fix:`, `nav:`)
