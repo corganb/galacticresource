@@ -309,25 +309,25 @@
   var layers = { spiral: galaxy };
 
   // ═══ SOL MARKER ═══
-  // Small colored point at 26 kly from center (260 scene units on +X).
+  // Pixel-sized point at 26 kly from center (260 scene units on +X).
+  // Using THREE.Points with sizeAttenuation:false so the marker stays visible
+  // regardless of camera zoom - same pattern as the spiral and BSC layers.
   var SOL_POS = new THREE.Vector3(260, 0, 0);
-  var solGroup = new THREE.Group();
-  var solDot = new THREE.Mesh(
-    new THREE.SphereGeometry(0.5, 8, 6),
-    new THREE.MeshBasicMaterial({ color: 0xFFD54F })
-  );
-  solGroup.add(solDot);
-  solGroup.position.copy(SOL_POS);
+  var solGeo = new THREE.BufferGeometry();
+  solGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([SOL_POS.x, SOL_POS.y, SOL_POS.z]), 3));
+  var solGroup = new THREE.Points(solGeo, new THREE.PointsMaterial({
+    size: 10, color: 0xFFD54F, sizeAttenuation: false, transparent: true, opacity: 1.0
+  }));
   scene.add(solGroup);
   layers.sol = solGroup;
 
   // ═══ SGR A* MARKER ═══
-  var sgraGroup = new THREE.Group();
-  var sgraDot = new THREE.Mesh(
-    new THREE.SphereGeometry(0.8, 8, 6),
-    new THREE.MeshBasicMaterial({ color: 0xffddaa })
-  );
-  sgraGroup.add(sgraDot);
+  // Sgr A* sits at scene origin (galactic center). Same pixel-sized marker strategy.
+  var sgraGeo = new THREE.BufferGeometry();
+  sgraGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
+  var sgraGroup = new THREE.Points(sgraGeo, new THREE.PointsMaterial({
+    size: 12, color: 0xffddaa, sizeAttenuation: false, transparent: true, opacity: 1.0
+  }));
   scene.add(sgraGroup);
   layers.sgra = sgraGroup;
 
