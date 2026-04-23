@@ -265,21 +265,25 @@
     var roll = Math.random();
     var x, y, z, r, g, bl;
     if (roll < 0.25) {
-      var rr = Math.abs(gaussian()) * 120;
+      // Central bulge: Gaussian density around origin. Scale bumped to match larger disk.
+      var rr = Math.abs(gaussian()) * 160;
       var th = Math.random() * Math.PI * 2;
       x = rr * Math.cos(th);
       z = rr * Math.sin(th);
-      y = (Math.random() - 0.5) * 60;
+      y = (Math.random() - 0.5) * 80;
       r = 1.0; g = 0.88; bl = 0.65;
     } else if (roll < 0.93) {
+      // Scale: LY_PER_SCENE=100, so 500 scene units = 50,000 ly = real Milky Way disk radius.
+      // Arms extend from ~100 to ~540 scene units, putting Sol (at scene unit 260) at ~48% of visible radius,
+      // matching the real-sky view where Sol sits about halfway out.
       var arm = Math.floor(Math.random() * ARM_COUNT);
       var theta = Math.random() * 6;
-      var rBase = logSpiral(theta, 60, 0.28);
-      var jitter = (Math.random() - 0.5) * Math.max(30, rBase * 0.25);
+      var rBase = logSpiral(theta, 100, 0.28);
+      var jitter = (Math.random() - 0.5) * Math.max(50, rBase * 0.25);
       var armAngle = theta + arm * ARM_OFFSET + (Math.random() - 0.5) * 0.35;
       x = (rBase + jitter) * Math.cos(armAngle);
       z = (rBase + jitter) * Math.sin(armAngle);
-      y = (Math.random() - 0.5) * Math.max(15, rBase * 0.06);
+      y = (Math.random() - 0.5) * Math.max(25, rBase * 0.06);
       var t = Math.min(1, rBase / 1200);
       r = 1.0 - t * 0.4; g = 0.9 - t * 0.1; bl = 0.7 + t * 0.3;
     } else {
@@ -380,9 +384,12 @@
   fetch('data/exoplanets.json').then(function(r){return r.json();}).then(function(payload) {
     exoSystemsAll = payload.systems;
     exoGeo = new THREE.BufferGeometry();
+    // NASA Exoplanet Archive systems cluster tightly around Sol (observations limited to ~1 kpc).
+    // Larger point size + higher opacity so the cluster is clearly visible as a colorful patch
+    // at Sol's position when the whole galaxy is in view.
     exoPts = new THREE.Points(exoGeo, new THREE.PointsMaterial({
-      size: 1.5, sizeAttenuation: false, vertexColors: true,
-      transparent: true, opacity: 0.9
+      size: 4, sizeAttenuation: false, vertexColors: true,
+      transparent: true, opacity: 1.0
     }));
     exoPts.visible = false;
     scene.add(exoPts);
