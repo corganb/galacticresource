@@ -247,49 +247,61 @@
   // ═══ PROCEDURAL MILKY WAY ═══
   // 80k points: 25% bulge, 68% disk/arms, 7% halo.
   // NO texture map. Plain PointsMaterial with vertexColors only.
+  //
+  // Seeded PRNG (mulberry32) replaces Math.random here so the spiral-arm geometry is
+  // deterministic across reloads. For a scientific intelligence platform, users expect
+  // the same galactic view every time - Sol should always sit in the same position
+  // relative to the same visible arm, not roll the dice each page load.
   var STAR_COUNT = 80000;
   var pos = new Float32Array(STAR_COUNT * 3);
   var col = new Float32Array(STAR_COUNT * 3);
   var ARM_COUNT = 4;
   var ARM_OFFSET = (Math.PI * 2) / ARM_COUNT;
 
+  var _seed = 0x9b3779b9;
+  function srand() {
+    _seed |= 0; _seed = (_seed + 0x6D2B79F5) | 0;
+    var t = Math.imul(_seed ^ (_seed >>> 15), 1 | _seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
   function gaussian() {
     var u = 0, v = 0;
-    while (u === 0) u = Math.random();
-    while (v === 0) v = Math.random();
+    while (u === 0) u = srand();
+    while (v === 0) v = srand();
     return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
   }
   function logSpiral(theta, a, b) { return a * Math.exp(b * theta); }
 
   for (var i = 0; i < STAR_COUNT; i++) {
-    var roll = Math.random();
+    var roll = srand();
     var x, y, z, r, g, bl;
     if (roll < 0.25) {
       // Central bulge: Gaussian density around origin. Scale bumped to match larger disk.
       var rr = Math.abs(gaussian()) * 160;
-      var th = Math.random() * Math.PI * 2;
+      var th = srand() * Math.PI * 2;
       x = rr * Math.cos(th);
       z = rr * Math.sin(th);
-      y = (Math.random() - 0.5) * 80;
+      y = (srand() - 0.5) * 80;
       r = 1.0; g = 0.88; bl = 0.65;
     } else if (roll < 0.93) {
       // Scale: LY_PER_SCENE=100, so 500 scene units = 50,000 ly = real Milky Way disk radius.
       // Arms extend from ~100 to ~540 scene units, putting Sol (at scene unit 260) at ~48% of visible radius,
       // matching the real-sky view where Sol sits about halfway out.
-      var arm = Math.floor(Math.random() * ARM_COUNT);
-      var theta = Math.random() * 6;
+      var arm = Math.floor(srand() * ARM_COUNT);
+      var theta = srand() * 6;
       var rBase = logSpiral(theta, 100, 0.28);
-      var jitter = (Math.random() - 0.5) * Math.max(50, rBase * 0.25);
-      var armAngle = theta + arm * ARM_OFFSET + (Math.random() - 0.5) * 0.35;
+      var jitter = (srand() - 0.5) * Math.max(50, rBase * 0.25);
+      var armAngle = theta + arm * ARM_OFFSET + (srand() - 0.5) * 0.35;
       x = (rBase + jitter) * Math.cos(armAngle);
       z = (rBase + jitter) * Math.sin(armAngle);
-      y = (Math.random() - 0.5) * Math.max(25, rBase * 0.06);
+      y = (srand() - 0.5) * Math.max(25, rBase * 0.06);
       var t = Math.min(1, rBase / 1200);
       r = 1.0 - t * 0.4; g = 0.9 - t * 0.1; bl = 0.7 + t * 0.3;
     } else {
-      var rh = 100 + Math.random() * 1200;
-      var thh = Math.random() * Math.PI * 2;
-      var phh = Math.acos(2 * Math.random() - 1);
+      var rh = 100 + srand() * 1200;
+      var thh = srand() * Math.PI * 2;
+      var phh = Math.acos(2 * srand() - 1);
       x = rh * Math.sin(phh) * Math.cos(thh);
       y = rh * Math.cos(phh) * 0.5;
       z = rh * Math.sin(phh) * Math.sin(thh);
