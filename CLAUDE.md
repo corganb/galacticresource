@@ -16,14 +16,14 @@
 ## Hard rules
 1. **No em dashes.** Anywhere. Use hyphens, colons, or parentheses.
 2. **No canvas textures. Ever.** The v1 star field used `document.createElement('canvas')` to draw sprite textures for stars, which created persistent rendering artifacts (obscured / smeared stars) because HTML5 Canvas and WebGL disagree on premultiplied alpha. v2 uses `THREE.Points` with `GL_POINTS` (fragment shader circular alpha) only. Do not re-introduce canvas textures for points, labels, or backgrounds.
-3. **Cache-bust core.js after edits.** Bump `?v=N` on the `<script src>` tag. Current: `v=16`.
+3. **Cache-bust core.js after edits.** Bump `?v=N` on the `<script src>` tag. Current: `v=17`.
 4. **Verify syntax before pushing.** On the last `<script>` block, check `{` vs `}` balance and even backtick count.
 5. **Commit early, commit often.** One logical change per commit.
 6. **Python or Edit tool for multi-line edits.** Bash heredocs and repeated sed drop characters on this machine.
 7. **Data layers load but stay hidden by default.** Exoplanets, Bright Star Catalog, and notable objects all `fetch()` at startup but are toggled off until the user enables them from the sidebar.
 8. **Commit attribution: Corgan Studio, Inc. only.** Never add Co-Authored-By Claude.
 
-## Shared RS.* API (core.js v=16)
+## Shared RS.* API (core.js v=17)
 - `RS.renderTopBar(opts)` - centralized top nav
 - `RS.renderFootLinks()` - consistent footer nav
 - `RS.showAnalysisPanel(data)` - click-to-inspect detail panel (used for star/exoplanet inspection via raycasting)
