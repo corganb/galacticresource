@@ -534,7 +534,8 @@
 
   // Update arm label positions each frame
   function updateArmLabels() {
-    if (armContainer.style.display === 'none') return;
+    // armContainer is created after tick() starts, so guard against early frames.
+    if (!armContainer || armContainer.style.display === 'none') return;
     var rect = canvas.getBoundingClientRect();
     armLabels.forEach(function(a) {
       var projected = a.pos.clone().project(camera);
