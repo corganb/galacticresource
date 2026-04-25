@@ -128,6 +128,14 @@
   }
   #reset-view { position: absolute; bottom: 12px; left: 12px; z-index: 55; width: 38px; height: 38px; background: var(--panel-bg); backdrop-filter: blur(14px); border: 1px solid var(--b2); border-radius: 6px; color: var(--t2); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   #reset-view:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* DSN live panel */
+  #dsn-panel { position: absolute; right: 10px; bottom: 10px; width: 260px; background: var(--panel-bg); backdrop-filter: blur(14px); border: 1px solid var(--b1); border-radius: 8px; padding: 10px 12px; font-size: 10px; color: var(--t3); max-height: 220px; overflow-y: auto; z-index: 55; }
+  #dsn-panel .dsn-head { display: flex; align-items: center; gap: 6px; font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t4); margin-bottom: 6px; }
+  #dsn-panel .dsn-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; flex-shrink: 0; }
+  @media (max-width: 600px) {
+    #dsn-panel { max-width: 84vw; width: 84vw; max-height: 34vh; bottom: 4px; right: 4px; font-size: 9.5px; }
+  }
 </style>
 </head>
 <body>
@@ -212,6 +220,10 @@
     <button class="sb-toggle" id="mobile-sb-toggle" aria-label="Toggle layers" onclick="document.querySelector('.sidebar-left').classList.toggle('open')">&#9776;</button>
     <button id="reset-view" title="Reset view" aria-label="Reset view">&#8634;</button>
     <div id="hover-info"></div>
+    <div id="dsn-panel">
+      <div class="dsn-head"><span class="dsn-dot" id="dsn-dot"></span><span>Deep Space Network</span></div>
+      <div id="dsn-content">Loading...</div>
+    </div>
   </div>
 </div>
 
@@ -752,6 +764,47 @@
       if (authEl && RS.renderAuthButton) authEl.innerHTML = RS.renderAuthButton();
     }); } catch(e) {}
   }
+})();
+
+// ═══ DSN LIVE PANEL (shared Supabase edge function) ═══
+(function initDSN() {
+  var URL_ = 'https://pxocavaczfjcpvqeiznt.supabase.co/functions/v1/dsn-status';
+  var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4b2NhdmFjemZqY3B2cWVpem50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDA3MDcsImV4cCI6MjA5MDExNjcwN30.48A2xW4YoGCESsVurxmW3MP9x_lq2AJ8XeS8nR2RVGI';
+  function poll() {
+    fetch(URL_, { headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY } })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var content = document.getElementById('dsn-content');
+        var dot = document.getElementById('dsn-dot');
+        if (!content) return;
+        if (!data || !data.stations) {
+          content.innerHTML = '<div style="color:rgba(255,255,255,0.4)">No active contacts</div>';
+          if (dot) dot.style.background = '#fbbf24';
+          return;
+        }
+        var html = '<div style="color:rgba(255,255,255,0.3);margin-bottom:6px;font-size:9px">Updated ' + new Date().toLocaleTimeString() + '</div>';
+        data.stations.forEach(function(st) {
+          html += '<div style="margin-bottom:6px"><div style="color:var(--accent);font-weight:500">' + st.name + '</div>';
+          st.dishes.forEach(function(d) {
+            var active = d.targets.filter(function(t) { return t.name !== 'DSN' && t.name !== 'DSS'; });
+            if (active.length === 0) return;
+            html += '<div style="margin-left:8px;color:rgba(255,255,255,0.6)">' + d.name + ' | ' + (d.activity || '') + '</div>';
+            active.forEach(function(t) {
+              html += '<div style="margin-left:16px;color:rgba(255,255,255,0.5);font-size:9.5px">' + t.name + '</div>';
+            });
+          });
+          html += '</div>';
+        });
+        content.innerHTML = html;
+        if (dot) dot.style.background = '#4ade80';
+      })
+      .catch(function() {
+        var dot = document.getElementById('dsn-dot');
+        if (dot) dot.style.background = '#ef4444';
+      });
+  }
+  poll();
+  setInterval(poll, 45000);
 })();
 
 </script>
