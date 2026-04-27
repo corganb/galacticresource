@@ -142,6 +142,7 @@
 
 
 
+
   /* ═══ UNIFIED MOBILE LAYOUT (synced across all RS sites) ═══ */
   /* Source: scripts/sync_mobile_css.py - edit there and resync to keep all sites consistent. */
   /* Layout: brand fixed at left, planet-nav scrolls in the middle, auth/research */
@@ -210,6 +211,15 @@
     #reset-view { width: 36px; height: 36px; font-size: 14px; bottom: 8px; left: 8px; }
     /* Statusbar shrink */
     .statusbar { height: 22px; font-size: 9px; gap: 12px; padding: 0 8px; }
+    /* Larger tap targets inside the sidebar (Apple HIG min 44pt) */
+    .sidebar-left .layer-row, .sidebar .layer-row,
+    .sidebar-left .ly-row, .sidebar-left .ly-item,
+    .sidebar-left .info-row { min-height: 40px; padding-top: 9px; padding-bottom: 9px; }
+    .sidebar-left button, .sidebar button { min-height: 36px; }
+    .sidebar-left input[type="checkbox"], .sidebar-left input[type="radio"] {
+      width: 18px; height: 18px;
+    }
+    .sidebar-left input[type="range"] { height: 24px; }
   }
   @media (max-width: 480px) {
     .topbar { height: 40px !important; min-height: 40px; padding: 0 6px !important; }
@@ -327,7 +337,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js" integrity="sha384-vV17nr/rMaJqmeZkFUzXLpHdQ+ME5QHKdydaqqN+3Ga39RJlNrTatJxHwGV4ml2C" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js" integrity="sha384-I0DMsfimAPIqWT8lF+oA997gRgdUi3jhidoTq3fN0zmn35smXZukD01FLnsPRU9i" crossorigin="anonymous"></script>
-<script src="resource-systems-core.js?v=21"></script>
+<script src="resource-systems-core.js?v=22"></script>
 
 <script>
 // ═══ GALACTIC RESOURCE v2 - REBUILT FROM SCRATCH ═══
